@@ -40,7 +40,9 @@ int Server::bindSocket()
         fatal("Error on binding");
 }
 
-// fatal
+/// @brief exit the program with a message
+/// @param message exit message
+/// @return void
 void Server::fatal(const char *message)
 {
     perror(message);
