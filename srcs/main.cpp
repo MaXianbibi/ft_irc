@@ -10,5 +10,9 @@ int main() {
     server.loopSocket();
     server.closeSocket();
 
+    int test =  0;
+
+    std::cout << "test: " << test << std::endl;
+
     return 0;
 }
