@@ -186,9 +186,10 @@ void Server::newMessage(int &i)
             perror("ERROR on recv");
             // ? fatal("ERROR on recv");
         }
-        close(i);           // Bye!
         FD_CLR(i, &master); // Remove from master set
-        clients.erase(i);   // Remove from clients map
+        clients_by_nick.erase(clients.at(i).get_nickname());
+        clients.erase(i); // Remove from clients map
+        close(i);         // Bye!
     }
     else
     {
@@ -197,20 +198,17 @@ void Server::newMessage(int &i)
             buffer[n] = '\0';
 
         Client &client = clients.at(i);
-
-        Log(buffer);
         std::string string_buffer(buffer);
-
         client.set_command(string_buffer);
         client.parse_command();
         client.parse_list_command();
-
         std::vector<commands> commands_parsed = clients.at(i).get_commands_parsed();
-        client.get_commands_parsed().clear();
+        client.clear_commands_parsed();
 
         std::vector<commands>::iterator it = commands_parsed.begin();
         for (; it != commands_parsed.end(); ++it)
         {
+            std::cout << "Commands : " << it->command << std::endl;
             if (it->command == "NICK")
                 NickCommand(client, it);
             else if (it->command == "USER")
@@ -219,10 +217,73 @@ void Server::newMessage(int &i)
                 return QuitCommand(i);
             else if (it->command == "PING")
                 PingCommand(it, i);
+            else if (it->command == "CAP")
+                CapCommand(it, i);
+            else if (it->command == "MODE")
+            {
+                if (it->params.size() < 1)
+                    return;
+                if (it->params[0].empty())
+                    return;
+
+                std::string caracters = "#&!+";
+
+                if (caracters.find(it->params[0][0]) != std::string::npos)
+                {
+                    std::cout << "channel" << std::endl; // C'est un canal
+                }
+                else
+                {
+                    try {
+                        Client &target = get_client_by_nick(it->params[0]);
+                        if (it->params[1].empty())
+                            return;
+                        if (it->params[1][0] == '+')
+                        {
+                            for (size_t i = 1; i < it->params[1].size(); i++)
+                            {
+                                std::cout << target.get_mode() << std::endl;
+
+                                if (target.get_mode().find(it->params[1][i]) == std::string::npos)
+                                    target.set_mode(target.get_mode() + it->params[1][i]);
+                            }
+                            std::cout << "MODE : " << target.get_mode() << std::endl;
+                        }
+                        else if (it->params[1][0] == '-')
+                        {
+                            for (size_t i = 1; i < it->params[1].size(); i++)
+                            {
+                                if (target.get_mode().find(it->params[1][i]) != std::string::npos)
+                                    target.set_mode(target.get_mode().erase(target.get_mode().find(it->params[1][i]), 1));
+                            }
+                        }
+                        // :<server_name> 221 <nickname> :+i
+                        std::string rp = ":" + std::string(SERVER_NAME) + " 221 " + target.get_nickname() + " :+" + target.get_mode() + "\r\n"; 
+                        if (send(i, rp.c_str(), rp.size(), 0) < 0)
+                            perror("ERROR on send");
+                    }
+                    catch (std::runtime_error &e) {
+                        std::cerr << e.what() << std::endl;
+                    }
+                }
+            }
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);
         // msgToEveryClient(i, buffer, n);
+    }
+}
+
+/// @brief gere la commade Cap, si le client demande les LS, on lui repond
+/// @param it (iterator of the command)
+/// @param i (client socket fd)
+void Server::CapCommand(std::vector<commands>::iterator &it, int &i)
+{
+    if (!it->params.empty() && it->params[0] == "LS")
+    {
+        std::string rp = ":" + std::string(SERVER_NAME) + " CAP * LS :\r\n";
+        if (send(i, rp.c_str(), rp.size(), 0) < 0)
+            perror("ERROR on send");
     }
 }
 
@@ -325,6 +386,18 @@ int Server::get_sockfd() const { return sockfd; }
 int Server::get_port() const { return port; }
 int Server::get_client_fd() const { return client_fd; }
 std::map<int, Client> Server::get_clients() const { return clients; }
+std::map<std::string, Client *> Server::get_clients_by_nick() const { return clients_by_nick; }
+
+Client &Server::get_client_by_nick(std::string nickname) {
+    std::map<std::string, Client*>::iterator it = clients_by_nick.find(nickname);
+    if (it != clients_by_nick.end()) {
+        return *(it->second);  // Retourne une référence à l'objet Client trouvé.
+    } else {
+        throw std::runtime_error("Client not found");
+    }
+}
+
+
 
 // Setter
 void Server::set_sockfd(int sockfd) { this->sockfd = sockfd; }

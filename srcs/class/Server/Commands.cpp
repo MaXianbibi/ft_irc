@@ -1,12 +1,35 @@
 #include "Server.hpp"
 
 
-/// @brief Change ou init le nickname du client
+/// @brief Change ou init le nickname du Client
 /// @param client info client
 /// @param it iterator of the command
 void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
 {
-    client.set_nickname(it->params[0]);
+    if (it->params.size() == 0)
+        return;
+    if (it->params[0].empty())
+        return;
+    // new client
+    if (client.get_nickname().empty())
+    {
+        clients_by_nick[it->params[0]] = &client;
+        client.set_nickname(it->params[0]);
+        // std::cout << "youpi" << std::endl;
+        return;
+    }
+    // change nickname
+    if (clients_by_nick.find(it->params[0]) != clients_by_nick.end()) // nickname already in use
+    {
+        std::string rp = "433 " + it->params[0] + " :Nickname is already in use\r\n";
+        send(client.get_socket(), rp.c_str(), rp.size(), 0);
+    }
+    else
+    {
+        clients_by_nick.erase(client.get_nickname());
+        clients_by_nick[it->params[0]] = &client;
+        client.set_nickname(it->params[0]);
+    }
 }
 
 /// @brief  Rempli les informations du client, nickname, username, mode, unused, realname
@@ -16,7 +39,6 @@ void Server::UserCommand(Client &client, std::vector<commands>::iterator &it)
 {
 
     client.set_username(it->params[0]);
-    client.set_mode(it->params[1]);
     client.set_unused(it->params[2]);
     client.set_realname(it->params[3]);
 }
@@ -26,9 +48,10 @@ void Server::UserCommand(Client &client, std::vector<commands>::iterator &it)
 void Server::QuitCommand(int &i)
 {
 
-    close(i);           // Bye!
     FD_CLR(i, &master); // Remove from master set
+    clients_by_nick.erase(clients.at(i).get_nickname());
     clients.erase(i);   // Remove from clients map
+    close(i);           // Bye!
     std::cout << "Client " << i << " disconnected" << std::endl;
     return;
 }

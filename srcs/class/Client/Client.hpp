@@ -48,6 +48,7 @@ private:
     // tools
     void clear_command();
     void clear_command_list();
+    void clear_commands_parsed();
     void parse_command();
     void parse_list_command();
 
@@ -64,7 +65,7 @@ private:
     std::string get_mode() const;
     std::string get_unused() const;
     std::vector<commands> get_commands_parsed() const;
-
+    
     bool get_first_time_connected() const;
 
     // setter

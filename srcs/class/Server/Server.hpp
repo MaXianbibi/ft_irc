@@ -37,6 +37,7 @@ private:
 
     // clients
     std::map<int, Client> clients;
+    std::map<std::string, Client* > clients_by_nick;
 
 
 
@@ -60,15 +61,11 @@ public:
     int loopSocket();
     void newClient();
     void newMessage(int &i);
-
+    void CapCommand(std::vector<commands>::iterator &it, int &i);
     void NickCommand(Client &client, std::vector<commands>::iterator &it);
-
     void UserCommand(Client &client, std::vector<commands>::iterator &it);
-
     void QuitCommand(int &i);
-
     void PingCommand(std::vector<commands>::iterator &it, int &i);
-
     void FirstTimeConnectionMsg(Client &client, int &i);
 
     // commands
@@ -86,8 +83,9 @@ public:
     int get_sockfd() const;
     int get_port() const;
     int get_client_fd() const;
-
     std::map<int, Client> get_clients() const;
+    std::map<std::string, Client*> get_clients_by_nick() const;
+    Client& get_client_by_nick(std::string nickname);
 
     // Setter
     void set_sockfd(int sockfd);

@@ -3,6 +3,7 @@
 Client::Client()
 {
     _first_time_connected = true;
+    _mode = "";
 }
 
 Client::~Client()
@@ -21,6 +22,11 @@ void Client::clear_command_list()
     {
         command_list[i].clear();
     }
+}
+
+void Client::clear_commands_parsed()
+{
+    _commands_parsed.clear();
 }
 
 /// @brief parse the buffer_command into command_list
@@ -72,7 +78,8 @@ void Client::parse_list_command()
         commands cmd;
         cmd.command = command;
         cmd.params = params;
-        _commands_parsed.push_back(cmd);
+        if (!command.empty())
+            _commands_parsed.push_back(cmd);
     }
     clear_command_list();
 }
