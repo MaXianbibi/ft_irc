@@ -61,10 +61,19 @@ public:
     void newClient();
     void newMessage(int &i);
 
-    // commands 
-        // PRIVMSG #channel :Your message here\r\n
-        void msgToEveryClient(int &i, char buffer[1024], int n); 
+    void NickCommand(Client &client, std::vector<commands>::iterator &it);
 
+    void UserCommand(Client &client, std::vector<commands>::iterator &it);
+
+    void QuitCommand(int &i);
+
+    void PingCommand(std::vector<commands>::iterator &it, int &i);
+
+    void FirstTimeConnectionMsg(Client &client, int &i);
+
+    // commands
+    // PRIVMSG #channel :Your message here\r\n
+    void msgToEveryClient(int &i, char buffer[1024], int n);
 
     // over multiple clients
     int selectInit();
