@@ -22,7 +22,7 @@ int Server::InitSocket()
     setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
     if (sockfd < 0)
         fatal("Error opening socket");
-    
+
     // set the socket to non-blocking
     int flags = fcntl(sockfd, F_GETFL, 0);
     if (flags < 0)
@@ -30,7 +30,6 @@ int Server::InitSocket()
 
     if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) < 0)
         fatal("Error setting socket to non-blocking");
-
 
     return SUCCESS;
 }
@@ -188,39 +187,45 @@ void Server::newMessage(int &i)
         }
         close(i);           // Bye!
         FD_CLR(i, &master); // Remove from master set
+        clients.erase(i);   // Remove from clients map
     }
     else
     {
+
         if (n < BUF_SIZE)
             buffer[n] = '\0';
-
 
         std::cout << "Received: " << buffer << std::endl;
         std::string string_buffer(buffer);
 
-        if (string_buffer == "CAP LS")
+        clients.at(i).set_command(string_buffer);
+        clients.at(i).parse_command();
+        clients.at(i).parse_list_command();
+
+        msgToEveryClient(i, buffer, n);
+    }
+}
+
+/// @brief send a message to every client except the sender and the server (ourself)
+/// @param i (client fd)
+/// @param buffer (message to send)
+/// @param n (size of the message)
+void Server::msgToEveryClient(int &i, char buffer[1024], int n)
+{
+    {
+        // We got some data from a client
+        for (int j = 0; j <= fdmax; j++)
         {
-            std::stringstream ss;
-            ss << ":" << SERVER_NAME << " CAP * LS :";
-            std::string msg = ss.str();
-            send(i, msg.c_str(), msg.size(), 0);
-        }
-        else
-        {
-            // We got some data from a client
-            for (int j = 0; j <= fdmax; j++)
+            // Send to everyone!
+            if (FD_ISSET(j, &master))
             {
-                // Send to everyone!
-                if (FD_ISSET(j, &master))
+                // Except the listener and ourselves
+                if (j != sockfd && j != i)
                 {
-                    // Except the listener and ourselves
-                    if (j != sockfd && j != i)
+                    if (send(j, buffer, n, 0) == -1)
                     {
-                        if (send(j, buffer, n, 0) == -1)
-                        {
-                            perror("ERROR on send");
-                            // ? fatal("ERROR on recv");
-                        }
+                        perror("ERROR on send");
+                        // ? fatal("ERROR on recv");
                     }
                 }
             }
@@ -247,18 +252,31 @@ void Server::newClient()
     else
     {
         int flags = fcntl(newsockfd, F_GETFL, 0);
-        if (flags < 0) {
+        if (flags < 0)
+        {
             perror("ERROR on fcntl(F_GETFL)");
             close(newsockfd);
-        } else {
-            if (fcntl(newsockfd, F_SETFL, flags | O_NONBLOCK) < 0) {
+        }
+        else
+        {
+            if (fcntl(newsockfd, F_SETFL, flags | O_NONBLOCK) < 0)
+            {
                 perror("ERROR on fcntl(F_SETFL)");
                 close(newsockfd);
-            } else {
-                FD_SET(newsockfd, &master); 
-                if (newsockfd > fdmax) {
+            }
+            else
+            {
+                FD_SET(newsockfd, &master);
+                if (newsockfd > fdmax)
+                {
                     fdmax = newsockfd;
                 }
+
+                clients.insert(std::make_pair(newsockfd, Client()));
+
+                clients[newsockfd].set_socket(newsockfd);
+                clients[newsockfd].set_ip(inet_ntoa(cli_addr.sin_addr));
+                clients[newsockfd].set_port(ntohs(cli_addr.sin_port));
                 printf("selectserver: new connection from %s on socket %d\n",
                        inet_ntoa(cli_addr.sin_addr), newsockfd);
             }
@@ -279,6 +297,7 @@ void Server::fatal(const char *message)
 int Server::get_sockfd() const { return sockfd; }
 int Server::get_port() const { return port; }
 int Server::get_client_fd() const { return client_fd; }
+std::map<int, Client> Server::get_clients() const { return clients; }
 
 // Setter
 void Server::set_sockfd(int sockfd) { this->sockfd = sockfd; }

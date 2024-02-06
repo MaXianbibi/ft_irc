@@ -3,6 +3,8 @@
 
 #include "../../include/irc.hpp"
 
+# include "../Client/Client.hpp"
+
 #define DEFAULT_IRC_PORT 6667
 #define DEFAULT_BACKLOG 50
 
@@ -27,6 +29,10 @@ private:
     fd_set read_fds;
     int fdmax;
 
+    // clients
+    std::map<int, Client> clients;
+
+
 
 public:
     Server();
@@ -48,10 +54,11 @@ public:
     void newClient();
     void newMessage(int &i);
 
+    void msgToEveryClient(int &i, char buffer[1024], int n);
+
     // over multiple clients
     int selectInit();
     int selectLoop();
-
 
     // fatal
     void fatal(const char *message);
@@ -61,10 +68,14 @@ public:
     int get_port() const;
     int get_client_fd() const;
 
+    std::map<int, Client> get_clients() const;
+
     // Setter
     void set_sockfd(int sockfd);
     void set_port(int port);
 
+
+    
 };
 
 
