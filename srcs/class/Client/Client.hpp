@@ -12,15 +12,28 @@ struct commands {
 class Client
 {
 private:
+
+    // socket & connection
     int _socket;
     std::string _ip;
     int _port;
-    std::string _nickname;      // NICK
-    std::string _username;      // USER param 0
-    std::string _mode;          // USER param 1
-    std::string _unused;        // USER param 2
-    std::string _realname;      // USER param 3
-    std::string _hostname;     // HOSTNAME
+
+    // user info
+        // NICK`
+        std::string _nickname;      // param 0
+
+        // USER
+        std::string _username;      // USER param 0
+        std::string _mode;          // USER param 1
+        std::string _unused;        // USER param 2
+        std::string _realname;      // USER param 3
+
+        // HOSTNAME
+        std::string _hostname;     // ?? jsp si on va l'utiliser
+
+
+
+    // command & command list
     std::string buffer_command;
     std::vector<std::string> command_list;
     std::vector<commands> _commands_parsed;
