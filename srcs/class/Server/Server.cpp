@@ -227,6 +227,7 @@ void Server::newMessage(int &i)
                 FD_CLR(i, &master); // Remove from master set
                 clients.erase(i);   // Remove from clients map
             }
+            
         }        
         // msgToEveryClient(i, buffer, n);
     }
