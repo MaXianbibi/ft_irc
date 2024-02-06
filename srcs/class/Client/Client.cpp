@@ -2,6 +2,7 @@
 
 Client::Client()
 {
+    _first_time_connected = true;
 }
 
 Client::~Client()
@@ -89,6 +90,7 @@ int Client::get_port() const { return _port; }
 std::vector<commands> Client::get_commands_parsed() const { return _commands_parsed; }
 std::string Client::get_mode() const { return _mode; }
 std::string Client::get_unused() const { return _unused; }
+bool Client::get_first_time_connected() const { return _first_time_connected; }
 
 // setter
 void Client::set_nickname(std::string nickname) { _nickname = nickname; }
@@ -101,3 +103,4 @@ void Client::set_ip(std::string ip) { _ip = ip; }
 void Client::set_port(int port) { _port = port; }
 void Client::set_mode(std::string mode) { _mode = mode; }
 void Client::set_unused(std::string unused) { _unused = unused; }
+void Client::set_first_time_connected(bool first_time_connected) { _first_time_connected = first_time_connected; }

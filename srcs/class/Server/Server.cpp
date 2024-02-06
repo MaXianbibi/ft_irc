@@ -226,9 +226,28 @@ void Server::newMessage(int &i)
                 close(i);           // Bye!
                 FD_CLR(i, &master); // Remove from master set
                 clients.erase(i);   // Remove from clients map
+                return;
             }
-            
-        }        
+        }
+        if (client.get_first_time_connected() == true)
+        {
+            std::string serverName(SERVER_NAME);
+            std::string msgWelcome(":" + serverName + " 001 " + client.get_nickname() + " :Welcome to the IRC Network, " + client.get_nickname() + "!" + client.get_username() + "@" + client.get_ip() + "\r\n");
+            send(i, msgWelcome.c_str(), msgWelcome.size(), 0);
+            msgWelcome.clear();
+            msgWelcome = ":" + serverName + " 002 " + client.get_nickname() + " :Your host is " + serverName + ", running version 0.1\r\n";
+            send(i, msgWelcome.c_str(), msgWelcome.size(), 0);
+            // :KanyesFanClub 003 votrePseudo :This server was created dateDeCreation
+            msgWelcome.clear();
+            msgWelcome = ":" + serverName + " 003 " + client.get_nickname() + " :This server was created " + __CREATION_DATE__ + " " + __CREATION_TIME__ + "\r\n";
+            send(i, msgWelcome.c_str(), msgWelcome.size(), 0);
+            // :KanyesFanClub 004 votrePseudo KanyesFanClub versionServeur userModes channelModes
+            msgWelcome.clear();
+            msgWelcome = ":" + serverName + " 004 " + client.get_nickname() + " " + serverName + " 0.1 " + "i" + " " + "n" + "\r\n";
+            send(i, msgWelcome.c_str(), msgWelcome.size(), 0);
+
+            client.set_first_time_connected(false);
+        }    
         // msgToEveryClient(i, buffer, n);
     }
 }

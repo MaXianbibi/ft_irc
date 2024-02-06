@@ -4,6 +4,7 @@
 #include "../../include/irc.hpp"
 
 
+
 struct commands {
     std::string command;
     std::vector<std::string> params;
@@ -38,6 +39,8 @@ private:
     std::vector<std::string> command_list;
     std::vector<commands> _commands_parsed;
 
+    bool _first_time_connected;
+
     public:
     Client();
     ~Client();
@@ -62,6 +65,8 @@ private:
     std::string get_unused() const;
     std::vector<commands> get_commands_parsed() const;
 
+    bool get_first_time_connected() const;
+
     // setter
     void set_nickname(std::string nickname);
     void set_username(std::string username);
@@ -73,6 +78,7 @@ private:
     void set_port(int port);
     void set_mode(std::string mode);
     void set_unused(std::string unused);
+    void set_first_time_connected(bool first_time_connected);
 
 
 };

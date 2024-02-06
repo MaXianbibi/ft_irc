@@ -9,8 +9,13 @@
 #define DEFAULT_BACKLOG 50
 
 #define BUF_SIZE 1024
-#define SERVER_NAME "Kanye's Fan Club"
+#define SERVER_NAME "KanyesFanClub"
 
+#define __CREATION_DATE__ "2024-02-06"
+#define __CREATION_TIME__ "12:00:00"
+
+
+#define CLIENT client.getNick() + "!" + client.getUser() + "@" + client.getIP()
 
 class Server
 {
