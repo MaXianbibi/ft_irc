@@ -13,8 +13,16 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     // new client
     if (client.get_nickname().empty())
     {
-        clients_by_nick[it->params[0]] = &client;
-        client.set_nickname(it->params[0]);
+        if (clients_by_nick.find(it->params[0]) != clients_by_nick.end())
+        {
+            std::string rp = "433 " + it->params[0] + " :Nickname is already in use\r\n";
+            send(client.get_socket(), rp.c_str(), rp.size(), 0);
+        }
+        else
+        {
+            clients_by_nick[it->params[0]] = &client;
+            client.set_nickname(it->params[0]);
+        }
         // std::cout << "youpi" << std::endl;
         return;
     }
@@ -70,6 +78,11 @@ void Server::PingCommand(std::vector<commands>::iterator &it, int &i)
             rp += " " + it->params[i];
     }
     rp += "\r\n";
+
+    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+        std::cout << " NICKNAME : " << it->second.get_nickname() << std::endl;
+
+
     if (send(i, rp.c_str(), rp.size(), 0) < 0)
         perror("ERROR on send");
 }

@@ -39,8 +39,6 @@ private:
     std::map<int, Client> clients;
     std::map<std::string, Client* > clients_by_nick;
 
-
-
 public:
     Server();
     ~Server();
@@ -61,16 +59,17 @@ public:
     int loopSocket();
     void newClient();
     void newMessage(int &i);
-    void CapCommand(std::vector<commands>::iterator &it, int &i);
+
+    // commands
+    // PRIVMSG #channel :Your message here\r\n
     void NickCommand(Client &client, std::vector<commands>::iterator &it);
     void UserCommand(Client &client, std::vector<commands>::iterator &it);
     void QuitCommand(int &i);
     void PingCommand(std::vector<commands>::iterator &it, int &i);
     void FirstTimeConnectionMsg(Client &client, int &i);
-
-    // commands
-    // PRIVMSG #channel :Your message here\r\n
+    void CapCommand(std::vector<commands>::iterator &it, int &i);
     void msgToEveryClient(int &i, char buffer[1024], int n);
+    void ModeCommand(std::vector<commands>::iterator &it, int &i);
 
     // over multiple clients
     int selectInit();
@@ -90,9 +89,6 @@ public:
     // Setter
     void set_sockfd(int sockfd);
     void set_port(int port);
-
-
-    
 };
 
 

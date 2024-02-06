@@ -208,7 +208,7 @@ void Server::newMessage(int &i)
         std::vector<commands>::iterator it = commands_parsed.begin();
         for (; it != commands_parsed.end(); ++it)
         {
-            std::cout << "Commands : " << it->command << std::endl;
+            std::cout << "Commands : " << it->command << " [" << i << "]" << std::endl;
             if (it->command == "NICK")
                 NickCommand(client, it);
             else if (it->command == "USER")
@@ -220,57 +220,62 @@ void Server::newMessage(int &i)
             else if (it->command == "CAP")
                 CapCommand(it, i);
             else if (it->command == "MODE")
-            {
-                if (it->params.size() < 1)
-                    return;
-                if (it->params[0].empty())
-                    return;
-
-                std::string caracters = "#&!+";
-
-                if (caracters.find(it->params[0][0]) != std::string::npos)
-                {
-                    std::cout << "channel" << std::endl; // C'est un canal
-                }
-                else
-                {
-                    try {
-                        Client &target = get_client_by_nick(it->params[0]);
-                        if (it->params[1].empty())
-                            return;
-                        if (it->params[1][0] == '+')
-                        {
-                            for (size_t i = 1; i < it->params[1].size(); i++)
-                            {
-                                std::cout << target.get_mode() << std::endl;
-
-                                if (target.get_mode().find(it->params[1][i]) == std::string::npos)
-                                    target.set_mode(target.get_mode() + it->params[1][i]);
-                            }
-                            std::cout << "MODE : " << target.get_mode() << std::endl;
-                        }
-                        else if (it->params[1][0] == '-')
-                        {
-                            for (size_t i = 1; i < it->params[1].size(); i++)
-                            {
-                                if (target.get_mode().find(it->params[1][i]) != std::string::npos)
-                                    target.set_mode(target.get_mode().erase(target.get_mode().find(it->params[1][i]), 1));
-                            }
-                        }
-                        // :<server_name> 221 <nickname> :+i
-                        std::string rp = ":" + std::string(SERVER_NAME) + " 221 " + target.get_nickname() + " :+" + target.get_mode() + "\r\n"; 
-                        if (send(i, rp.c_str(), rp.size(), 0) < 0)
-                            perror("ERROR on send");
-                    }
-                    catch (std::runtime_error &e) {
-                        std::cerr << e.what() << std::endl;
-                    }
-                }
-            }
+                ModeCommand(it, i);
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);
         // msgToEveryClient(i, buffer, n);
+    }
+}
+
+/// @brief gere la command mode selon si c'est un channel ou un client
+/// @bug defois le client n'est pas trouvé
+/// @param it 
+/// @param i 
+void Server::ModeCommand(std::vector<commands>::iterator &it, int &i)
+{
+    if (it->params.size() < 1)
+        return;
+    if (it->params[0].empty())
+        return;
+    std::string caracters = "#&!+";
+
+    if (caracters.find(it->params[0][0]) != std::string::npos)
+    {
+        std::cout << "channel" << std::endl; // C'est un canal
+    }
+    else
+    {
+        try
+        {
+            Client &target = get_client_by_nick(it->params[0]);
+            if (it->params[1].empty())
+                return;
+            if (it->params[1][0] == '+')
+            {
+                for (size_t i = 1; i < it->params[1].size(); i++)
+                {
+                    if (target.get_mode().find(it->params[1][i]) == std::string::npos)
+                        target.set_mode(target.get_mode() + it->params[1][i]);
+                }
+            }
+            else if (it->params[1][0] == '-')
+            {
+                for (size_t i = 1; i < it->params[1].size(); i++)
+                {
+                    if (target.get_mode().find(it->params[1][i]) != std::string::npos)
+                        target.set_mode(target.get_mode().erase(target.get_mode().find(it->params[1][i]), 1));
+                }
+            }
+            // :<server_name> 221 <nickname> :+i
+            std::string rp = ":" + std::string(SERVER_NAME) + " 221 " + target.get_nickname() + " :+" + target.get_mode() + "\r\n";
+            if (send(i, rp.c_str(), rp.size(), 0) < 0)
+                perror("ERROR on send");
+        }
+        catch (std::runtime_error &e)
+        {
+            std::cerr << e.what() << std::endl;
+        }
     }
 }
 
@@ -388,16 +393,19 @@ int Server::get_client_fd() const { return client_fd; }
 std::map<int, Client> Server::get_clients() const { return clients; }
 std::map<std::string, Client *> Server::get_clients_by_nick() const { return clients_by_nick; }
 
-Client &Server::get_client_by_nick(std::string nickname) {
-    std::map<std::string, Client*>::iterator it = clients_by_nick.find(nickname);
-    if (it != clients_by_nick.end()) {
-        return *(it->second);  // Retourne une référence à l'objet Client trouvé.
-    } else {
+Client &Server::get_client_by_nick(std::string nickname)
+{
+    std::map<std::string, Client *>::iterator it = clients_by_nick.find(nickname);
+    if (it != clients_by_nick.end())
+    {
+        return *(it->second); // Retourne une référence à l'objet Client trouvé.
+    }
+    else
+    {
+        std::cout << "0;31" << "Client not found : " << nickname << std::endl;
         throw std::runtime_error("Client not found");
     }
 }
-
-
 
 // Setter
 void Server::set_sockfd(int sockfd) { this->sockfd = sockfd; }
