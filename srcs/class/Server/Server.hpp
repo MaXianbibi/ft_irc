@@ -11,6 +11,7 @@
 #define BUF_SIZE 1024
 #define SERVER_NAME "Kanye's Fan Club"
 
+
 class Server
 {
 private:
@@ -48,13 +49,17 @@ public:
     int rcvSocket();
     int sendSocket(const char *message);
     int closeSocket();
+    void Log(char buffer[1024]);
 
     // over one client ( u need to use acceptSocket() before
     int loopSocket();
     void newClient();
     void newMessage(int &i);
 
-    void msgToEveryClient(int &i, char buffer[1024], int n);
+    // commands 
+        // PRIVMSG #channel :Your message here\r\n
+        void msgToEveryClient(int &i, char buffer[1024], int n); 
+
 
     // over multiple clients
     int selectInit();

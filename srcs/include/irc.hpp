@@ -4,8 +4,6 @@
 #define SUCCESS 0
 #define FAILURE 1
 
-
-
 #include <fcntl.h>
 #include <sys/select.h>
 #include <unistd.h>
@@ -27,5 +25,50 @@
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
+
+enum e_command
+{
+    NICK,
+    USER,
+    PRIVMSG,
+    JOIN,
+    PART,
+    QUIT,
+    PING,
+    PONG,
+    MOTD,
+    LUSERS,
+    WHOIS,
+    WHO,
+    LIST,
+    TOPIC,
+    NAMES,
+    KICK,
+    MODE,
+    OPER,
+    AWAY,
+    REHASH,
+    RESTART,
+    SUMMON,
+    USERS,
+    WALLOPS,
+    USERHOST,
+    ISON,
+    TIME,
+    VERSION,
+    STATS,
+    LINKS,
+    ADMIN,
+    INFO,
+    SERVICE,
+    SERVLIST,
+    SQUERY,
+    SQUIT,
+    CONNECT,
+    TRACE,
+    KILL,
+    ERROR,
+    UNKNOWN
+};
 
 #endif

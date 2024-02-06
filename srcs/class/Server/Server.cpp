@@ -165,8 +165,9 @@ int Server::selectLoop()
     return SUCCESS;
 }
 
-/// @brief new message from a client
-/// @param i (client fd)
+/// @brief new message from a client (i)
+/// @brief parse message and applieds commands in consequence
+/// @param i (client socket fd)
 void Server::newMessage(int &i)
 {
     int n;
@@ -195,15 +196,40 @@ void Server::newMessage(int &i)
         if (n < BUF_SIZE)
             buffer[n] = '\0';
 
-        std::cout << "Received: " << buffer << std::endl;
+        Client &client = clients.at(i);
+
+        Log(buffer);
         std::string string_buffer(buffer);
 
-        clients.at(i).set_command(string_buffer);
-        clients.at(i).parse_command();
-        clients.at(i).parse_list_command();
+        client.set_command(string_buffer);
+        client.parse_command();
+        client.parse_list_command();
 
-        msgToEveryClient(i, buffer, n);
+        std::vector<commands> commands_parsed = clients.at(i).get_commands_parsed();
+        client.get_commands_parsed().clear();
+
+        
+        // std::vector<commands>::iterator it = commands_parsed.begin();
+        // for (; it != commands_parsed.end(); ++it)
+        // {
+        //     switch (it->command)
+        //     {
+        //     case "NICK":
+        //         client.set_nickname(it->params[0]);
+        //         break;
+            
+        //     default:
+        //         break;
+        //     }
+            
+        // }        
+        // msgToEveryClient(i, buffer, n);
     }
+}
+
+void Server::Log(char buffer[1024])
+{
+    std::cout << "Received: " << buffer << std::endl;
 }
 
 /// @brief send a message to every client except the sender and the server (ourself)
