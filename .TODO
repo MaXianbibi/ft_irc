@@ -1,7 +1,5 @@
 TODO:
     - send to new Client : 
-        - Confirmation de NICK et USER : nothing to send 
-            - keep information
         - Messages de bienvenue
             - 001 Welcome Message:
             - 002 Your host:

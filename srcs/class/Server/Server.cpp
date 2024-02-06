@@ -209,24 +209,32 @@ void Server::newMessage(int &i)
         client.get_commands_parsed().clear();
 
         
-        // std::vector<commands>::iterator it = commands_parsed.begin();
-        // for (; it != commands_parsed.end(); ++it)
-        // {
-        //     switch (it->command)
-        //     {
-        //     case "NICK":
-        //         client.set_nickname(it->params[0]);
-        //         break;
-            
-        //     default:
-        //         break;
-        //     }
-            
-        // }        
+        std::vector<commands>::iterator it = commands_parsed.begin();
+        for (; it != commands_parsed.end(); ++it)
+        {
+            if (it->command == "NICK")
+                client.set_nickname(it->params[0]);
+            else if (it->command == "USER")
+            {
+                client.set_username(it->params[0]);
+                client.set_mode(it->params[1]);
+                client.set_unused(it->params[2]);
+                client.set_realname(it->params[3]); 
+            }
+            else if (it->command == "QUIT")
+            {
+                close(i);           // Bye!
+                FD_CLR(i, &master); // Remove from master set
+                clients.erase(i);   // Remove from clients map
+            }
+        }        
         // msgToEveryClient(i, buffer, n);
     }
 }
 
+
+/// @brief affiche les log du serv 
+/// @param buffer le message a afficher
 void Server::Log(char buffer[1024])
 {
     std::cout << "Received: " << buffer << std::endl;
