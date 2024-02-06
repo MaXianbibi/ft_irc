@@ -22,6 +22,15 @@ int Server::InitSocket()
     setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
     if (sockfd < 0)
         fatal("Error opening socket");
+    
+    // set the socket to non-blocking
+    int flags = fcntl(sockfd, F_GETFL, 0);
+    if (flags < 0)
+        fatal("Error getting socket flags");
+
+    if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) < 0)
+        fatal("Error setting socket to non-blocking");
+
 
     return SUCCESS;
 }
@@ -141,10 +150,7 @@ int Server::selectLoop()
     {
         read_fds = master; // Copy it
         if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1)
-        {
-            perror("ERROR on select");
-            exit(1);
-        }
+            fatal("ERROR on select");
         // Run through the existing connections looking for data to read
         for (int i = 0; i <= fdmax; i++)
         {
@@ -166,22 +172,38 @@ void Server::newMessage(int &i)
 {
     int n;
     char buffer[BUF_SIZE];
+    // Handle data from a client
+    if ((n = recv(i, buffer, sizeof(buffer), 0)) <= 0)
     {
-        // Handle data from a client
-        if ((n = recv(i, buffer, sizeof(buffer), 0)) <= 0)
+        // Got error or connection closed by client
+        if (n == 0)
         {
-            // Got error or connection closed by client
-            if (n == 0)
-            {
-                // Connection closed
-                printf("selectserver: socket %d hung up\n", i);
-            }
-            else
-            {
-                perror("ERROR on recv");
-            }
-            close(i);           // Bye!
-            FD_CLR(i, &master); // Remove from master set
+            // Connection closed
+            printf("selectserver: socket %d hung up\n", i);
+        }
+        else
+        {
+            perror("ERROR on recv");
+            // ? fatal("ERROR on recv");
+        }
+        close(i);           // Bye!
+        FD_CLR(i, &master); // Remove from master set
+    }
+    else
+    {
+        if (n < BUF_SIZE)
+            buffer[n] = '\0';
+
+
+        std::cout << "Received: " << buffer << std::endl;
+        std::string string_buffer(buffer);
+
+        if (string_buffer == "CAP LS")
+        {
+            std::stringstream ss;
+            ss << ":" << SERVER_NAME << " CAP * LS :";
+            std::string msg = ss.str();
+            send(i, msg.c_str(), msg.size(), 0);
         }
         else
         {
@@ -197,6 +219,7 @@ void Server::newMessage(int &i)
                         if (send(j, buffer, n, 0) == -1)
                         {
                             perror("ERROR on send");
+                            // ? fatal("ERROR on recv");
                         }
                     }
                 }
@@ -223,13 +246,23 @@ void Server::newClient()
     }
     else
     {
-        FD_SET(newsockfd, &master); // Add to master set
-        if (newsockfd > fdmax)
-        { // Keep track of the max
-            fdmax = newsockfd;
+        int flags = fcntl(newsockfd, F_GETFL, 0);
+        if (flags < 0) {
+            perror("ERROR on fcntl(F_GETFL)");
+            close(newsockfd);
+        } else {
+            if (fcntl(newsockfd, F_SETFL, flags | O_NONBLOCK) < 0) {
+                perror("ERROR on fcntl(F_SETFL)");
+                close(newsockfd);
+            } else {
+                FD_SET(newsockfd, &master); 
+                if (newsockfd > fdmax) {
+                    fdmax = newsockfd;
+                }
+                printf("selectserver: new connection from %s on socket %d\n",
+                       inet_ntoa(cli_addr.sin_addr), newsockfd);
+            }
         }
-        printf("selectserver: new connection from %s on socket %d\n",
-               inet_ntoa(cli_addr.sin_addr), newsockfd);
     }
 }
 

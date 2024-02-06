@@ -7,6 +7,7 @@
 #define DEFAULT_BACKLOG 50
 
 #define BUF_SIZE 1024
+#define SERVER_NAME "Kanye's Fan Club"
 
 class Server
 {

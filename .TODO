@@ -1,3 +1,15 @@
 TODO:
-    - Poll
-    - Commandes IRC de base
+    - send to new Client : 
+        - Confirmation de NICK et USER : nothing to send 
+            - keep information
+        - Messages de bienvenue
+            - 001 Welcome Message:
+            - 002 Your host:
+            - 003 Server created:
+            - 004 Server's available user modes:
+        - Message Of The Day (MOTD)
+            - :YourServer 375 justin :- YourServer Message of the Day -
+            - :YourServer 372 justin :- Welcome to our IRC server.
+                                                Please behave responsibly.
+            - :YourServer 376 justin :End of /MOTD command.
+
