@@ -3,16 +3,8 @@
 int main() {
     Server server;
 
-    server.InitSocket();
-    server.bindSocket();
-    server.listenSocket();
-    server.acceptSocket();
-    server.loopSocket();
-    server.closeSocket();
-
-    int test =  0;
-
-    std::cout << "test: " << test << std::endl;
+    server.selectInit();
+    server.selectLoop();
 
     return 0;
 }

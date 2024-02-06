@@ -4,6 +4,9 @@
 #define SUCCESS 0
 #define FAILURE 1
 
+
+
+#include <sys/select.h>
 #include <unistd.h>
 #include <fstream>
 #include <stdio.h>
@@ -21,5 +24,7 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
 
 #endif
