@@ -127,76 +127,110 @@ int Server::selectInit()
 
     // add the sockfd to the master set
     FD_SET(sockfd, &master);
-
     fdmax = sockfd;
 
     return SUCCESS;
 }
 
+/// @brief loop over cient while the connection is open
+/// @return
 int Server::selectLoop()
 {
-    int newsockfd, n;
-    socklen_t clilen;
-    struct sockaddr_in cli_addr;
-    char buffer[BUF_SIZE];
 
-        while(1) {
+    while (1)
+    {
         read_fds = master; // Copy it
-        if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1) {
+        if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1)
+        {
             perror("ERROR on select");
             exit(1);
         }
-
         // Run through the existing connections looking for data to read
-        for(int i = 0; i <= fdmax; i++) {
-            if (FD_ISSET(i, &read_fds)) { // We got one!!
-                if (i == sockfd) {
-                    // Handle new connections
-                    clilen = sizeof(cli_addr);
-                    newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
-
-                    if (newsockfd < 0) {
-                        perror("ERROR on accept");
-                    } else {
-                        FD_SET(newsockfd, &master); // Add to master set
-                        if (newsockfd > fdmax) {    // Keep track of the max
-                            fdmax = newsockfd;
-                        }
-                        printf("selectserver: new connection from %s on socket %d\n",
-                                inet_ntoa(cli_addr.sin_addr), newsockfd);
-                    }
-                } else {
-                    // Handle data from a client
-                    if ((n = recv(i, buffer, sizeof(buffer), 0)) <= 0) {
-                        // Got error or connection closed by client
-                        if (n == 0) {
-                            // Connection closed
-                            printf("selectserver: socket %d hung up\n", i);
-                        } else {
-                            perror("ERROR on recv");
-                        }
-                        close(i); // Bye!
-                        FD_CLR(i, &master); // Remove from master set
-                    } else {
-                        // We got some data from a client
-                        for(int j = 0; j <= fdmax; j++) {
-                            // Send to everyone!
-                            if (FD_ISSET(j, &master)) {
-                                // Except the listener and ourselves
-                                if (j != sockfd && j != i) {
-                                    if (send(j, buffer, n, 0) == -1) {
-                                        perror("ERROR on send");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } // END handle data from client
-            } // END got new incoming connection
-        } // END looping through file descriptors
-    } // END while(1)
-
+        for (int i = 0; i <= fdmax; i++)
+        {
+            if (FD_ISSET(i, &read_fds))
+            { // We got one!!
+                if (i == sockfd)
+                    newClient();
+                else
+                    newMessage(i);
+            }
+        }
+    }
     return SUCCESS;
+}
+
+/// @brief new message from a client
+/// @param i (client fd)
+void Server::newMessage(int &i)
+{
+    int n;
+    char buffer[BUF_SIZE];
+    {
+        // Handle data from a client
+        if ((n = recv(i, buffer, sizeof(buffer), 0)) <= 0)
+        {
+            // Got error or connection closed by client
+            if (n == 0)
+            {
+                // Connection closed
+                printf("selectserver: socket %d hung up\n", i);
+            }
+            else
+            {
+                perror("ERROR on recv");
+            }
+            close(i);           // Bye!
+            FD_CLR(i, &master); // Remove from master set
+        }
+        else
+        {
+            // We got some data from a client
+            for (int j = 0; j <= fdmax; j++)
+            {
+                // Send to everyone!
+                if (FD_ISSET(j, &master))
+                {
+                    // Except the listener and ourselves
+                    if (j != sockfd && j != i)
+                    {
+                        if (send(j, buffer, n, 0) == -1)
+                        {
+                            perror("ERROR on send");
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// @brief add a new client to the master set
+/// @return
+void Server::newClient()
+{
+    int newsockfd;
+    socklen_t clilen;
+    struct sockaddr_in cli_addr;
+
+    // Handle new connections
+    clilen = sizeof(cli_addr);
+    newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
+
+    if (newsockfd < 0)
+    {
+        perror("ERROR on accept");
+    }
+    else
+    {
+        FD_SET(newsockfd, &master); // Add to master set
+        if (newsockfd > fdmax)
+        { // Keep track of the max
+            fdmax = newsockfd;
+        }
+        printf("selectserver: new connection from %s on socket %d\n",
+               inet_ntoa(cli_addr.sin_addr), newsockfd);
+    }
 }
 
 /// @brief exit the program with a message

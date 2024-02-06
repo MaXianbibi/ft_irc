@@ -26,8 +26,7 @@ private:
     fd_set read_fds;
     int fdmax;
 
-    
-    
+
 public:
     Server();
     ~Server();
@@ -45,21 +44,22 @@ public:
 
     // over one client ( u need to use acceptSocket() before
     int loopSocket();
+    void newClient();
+    void newMessage(int &i);
 
     // over multiple clients
     int selectInit();
     int selectLoop();
 
 
-
-
     // fatal
     void fatal(const char *message);
 
-    // getter 
+    // getter
     int get_sockfd() const;
     int get_port() const;
     int get_client_fd() const;
+
     // Setter
     void set_sockfd(int sockfd);
     void set_port(int port);
