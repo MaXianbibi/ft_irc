@@ -196,6 +196,8 @@ void Server::newMessage(int &i)
 
         if (n < BUF_SIZE)
             buffer[n] = '\0';
+        
+        Log(buffer);
 
         Client &client = clients.at(i);
         std::string string_buffer(buffer);
@@ -221,6 +223,7 @@ void Server::newMessage(int &i)
                 CapCommand(it, i);
             else if (it->command == "MODE")
                 ModeCommand(it, i);
+            
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);
