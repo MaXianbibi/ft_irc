@@ -39,6 +39,9 @@ private:
     std::map<int, Client> clients;
     std::map<std::string, Client* > clients_by_nick;
 
+    // channels
+    std::map<std::string, std::vector<Client*> > channels;
+
 public:
     Server();
     ~Server();

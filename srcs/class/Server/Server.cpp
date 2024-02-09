@@ -225,6 +225,10 @@ void Server::newMessage(int &i)
                 ModeCommand(it, i);
             else if (it->command == "WHOIS")
                 WhoisCommand(it, client, i);
+            else if (it->command == "JOIN")
+            {
+
+            }
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);
