@@ -10,6 +10,9 @@ TODO:
             - implementer les mod selon les chanels
 
         - WHOIS
+            - code  312  qui indique dans quelle serveur il appartient
+            - 313 Indique si l'utilisateur est un opérateur IRC.
+            - 
         - JOIN
         - PRIVATE MSG
 

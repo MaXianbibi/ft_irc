@@ -102,7 +102,7 @@ void Server::FirstTimeConnectionMsg(Client &client, int &i)
     msgWelcome = ":" + serverName + " 003 " + client.get_nickname() + " :This server was created " + __CREATION_DATE__ + " " + __CREATION_TIME__ + "\r\n";
     send(i, msgWelcome.c_str(), msgWelcome.size(), 0);
     msgWelcome.clear();
-    msgWelcome = ":" + serverName + " 004 " + client.get_nickname() + " " + serverName + " 0.1 " + "i" + " " + "n" + "\r\n";
+    msgWelcome = ":" + serverName + " 004 " + client.get_nickname() + " :" + serverName + " 0.1 " + "o" + " " + "itkol" + "\r\n";
     send(i, msgWelcome.c_str(), msgWelcome.size(), 0);
     client.set_first_time_connected(false);
 }
