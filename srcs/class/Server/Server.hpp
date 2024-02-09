@@ -60,6 +60,8 @@ public:
     void newClient();
     void newMessage(int &i);
 
+    void WhoisCommand(std::vector<commands>::iterator &it, Client &client, int &i);
+
     // commands
     // PRIVMSG #channel :Your message here\r\n
     void NickCommand(Client &client, std::vector<commands>::iterator &it);

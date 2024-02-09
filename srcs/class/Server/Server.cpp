@@ -224,41 +224,38 @@ void Server::newMessage(int &i)
             else if (it->command == "MODE")
                 ModeCommand(it, i);
             else if (it->command == "WHOIS")
-            {
-                // :server 311 nick cible ident host * :Nom réel
-                // :server 312 nick cible server :Info serveur
-                // :server 319 nick cible :@#channel1 +#channel2
-                // :server 317 nick cible 42 1632429002 :secondes inactives, signé à
-                // :server 318 nick cible :Fin de la commande WHOIS
-
-                try {
-                    Client client_target = get_client_by_nick(it->params[0]);
-                    
-                    std::string server_name = SERVER_NAME;
-                    std::string rp = ":" + server_name + " 311 " + client.get_nickname() + " :" + client_target.get_nickname() + " " + client_target.get_username() + " " + client_target.get_ip() + " * :" + client_target.get_realname() + "\r\n";
-                    if (send(i, rp.c_str(), rp.size(), 0) < 0)
-                        perror("ERROR on send");
-                    std::string rp2 = ":" + server_name + " 318 " + client.get_nickname() + " " + client_target.get_nickname() + " :End of WHOIS list ( mf )\r\n";
-                    if (send(i, rp2.c_str(), rp2.size(), 0) < 0)
-                        perror("ERROR on send");
-                }
-                catch (std::runtime_error &e)
-                {
-                    std::string rs = ":" + std::string(SERVER_NAME) + " 401 " + it->params[0] + " :No such nick/channel\r\n";
-                    if (send(i, rs.c_str(), rs.size(), 0) < 0)
-                        perror("ERROR on send");
-                }
-
-
-                // std::string rp = ":" + server_name + "  
-
-            }
-            
+                WhoisCommand(it, client, i);
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);
         // msgToEveryClient(i, buffer, n);
     }
+}
+
+/// @brief Repond par les informations du client visé
+/// @param it ( iterator of the command )
+/// @param client ( client info )
+/// @param i ( client socket fd )
+void Server::WhoisCommand(std::vector<commands>::iterator &it, Client &client, int &i)
+{
+        try
+        {
+            Client client_target = get_client_by_nick(it->params[0]);
+
+            std::string server_name = SERVER_NAME;
+            std::string rp = ":" + server_name + " 311 " + client.get_nickname() + " :" + client_target.get_nickname() + " " + client_target.get_username() + " " + client_target.get_ip() + " * :" + client_target.get_realname() + "\r\n";
+            if (send(i, rp.c_str(), rp.size(), 0) < 0)
+                perror("ERROR on send");
+            std::string rp2 = ":" + server_name + " 318 " + client.get_nickname() + " " + client_target.get_nickname() + " :End of WHOIS list ( mf )\r\n";
+            if (send(i, rp2.c_str(), rp2.size(), 0) < 0)
+                perror("ERROR on send");
+        }
+        catch (std::runtime_error &e)
+        {
+            std::string rs = ":" + std::string(SERVER_NAME) + " 401 " + it->params[0] + " :No such nick/channel\r\n";
+            if (send(i, rs.c_str(), rs.size(), 0) < 0)
+                perror("ERROR on send");
+        }
 }
 
 /// @brief gere la command mode selon si c'est un channel ou un client
