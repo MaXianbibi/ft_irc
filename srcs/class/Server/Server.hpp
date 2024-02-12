@@ -71,6 +71,8 @@ public:
     void newClient();
     void newMessage(int &i);
 
+    void PrivmsgCommand(std::vector<commands>::iterator &it, Client &client);
+
     void joinCommand(std::vector<commands>::iterator &it, Client &client);
 
     void WhoisCommand(std::vector<commands>::iterator &it, Client &client, int &i);

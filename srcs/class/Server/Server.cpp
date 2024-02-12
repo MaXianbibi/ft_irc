@@ -233,55 +233,7 @@ void Server::newMessage(int &i)
             else if (it->command == "JOIN")
                 joinCommand(it, client);
             else if (it->command == "PRIVMSG")
-            {
-                std::string serveur_name = SERVER_NAME;
-                if (it->params.size() != 2)
-                {
-                    std::string rq = ":" + serveur_name + " 461 " + client.get_nickname() + " JOIN :Not enough parameters\r\n";
-                    if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
-                        fatal("Error on send");
-                    return;
-                }
-                std::string target_name = it->params[0];
-                if (target_name[0] == '#')
-                {
-                    if (channels.find(target_name) == channels.end())
-                    {
-                        std::string rq = ":" + serveur_name + " 401 " + client.get_nickname() + " " + target_name + " :No such nick/channel\r\n";
-                        if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
-                            fatal("Error on send");
-                        return;
-                    }
-                    
-                    std::vector<Client *> clients = channels[target_name].clients;
-                    std::vector<Client *>::iterator it_client = clients.begin();
-                    for (; it_client != clients.end(); ++it_client)
-                    {
-                        if ((*it_client)->get_socket() == client.get_socket())
-                            continue;
-                        std::string rq = ":" + client.get_nickname() + "!" + client.get_username() + "@" + client.get_ip() + " PRIVMSG " + target_name + " :" + it->params[1] + "\r\n";
-                        if (send((*it_client)->get_socket(), rq.c_str(), rq.size(), 0) < 0)
-                            fatal("Error on send");
-                    }
-                }
-                else
-                {
-                    if (clients_by_nick.find(target_name) == clients_by_nick.end())
-                    {
-                        std::cout << "target : " << target_name << " not found\n";
-                        std::string rq = ":" + serveur_name + " 401 " + client.get_nickname() + " " + target_name + " :No such nick/channel\r\n";
-                        if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
-                            fatal("Error on send");
-                        return;
-                    }
-                    Client *target = clients_by_nick[target_name];
-
-                    // :<expéditeur>!user@host PRIVMSG <destinataire> :<message>
-                    std::string rq = ":" + client.get_nickname() + "!" + client.get_username() + "@host" + " PRIVMSG " + target_name + " :" + it->params[1] + "\r\n"; 
-                    if (send(target->get_socket(), rq.c_str(), rq.size(), 0) < 0)
-                        fatal("Error on send");
-                }
-            }
+                PrivmsgCommand(it, client);
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);
