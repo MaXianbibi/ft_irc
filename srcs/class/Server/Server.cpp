@@ -196,7 +196,7 @@ void Server::newMessage(int &i)
 
         if (n < BUF_SIZE)
             buffer[n] = '\0';
-        
+
         Log(buffer);
 
         Client &client = clients.at(i);
@@ -211,6 +211,11 @@ void Server::newMessage(int &i)
         for (; it != commands_parsed.end(); ++it)
         {
             std::cout << "Commands : " << it->command << " [" << i << "]" << std::endl;
+            for (std::vector<std::string>::iterator it_param = it->params.begin(); it_param != it->params.end(); ++it_param)
+            {
+                std::cout << "Params : " << *it_param << std::endl;
+            }
+
             if (it->command == "NICK")
                 NickCommand(client, it);
             else if (it->command == "USER")
@@ -229,7 +234,40 @@ void Server::newMessage(int &i)
                 joinCommand(it, client);
             else if (it->command == "PRIVMSG")
             {
-                
+                std::string serveur_name = SERVER_NAME;
+                if (it->params.size() != 2)
+                {
+                    std::string rq = ":" + serveur_name + " 461 " + client.get_nickname() + " JOIN :Not enough parameters\r\n";
+                    if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                        fatal("Error on send");
+                    return;
+                }
+                std::string target_name = it->params[0];
+                if (target_name[0] == '#')
+                {
+                    if (channels.find(target_name) == channels.end())
+                    {
+                        std::string rq = ":" + serveur_name + " 401 " + client.get_nickname() + " " + target_name + " :No such nick/channel\r\n";
+                        if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                            fatal("Error on send");
+                        return;
+                    }
+                    
+                    std::vector<Client *> clients = channels[target_name].clients;
+                    std::vector<Client *>::iterator it_client = clients.begin();
+                    for (; it_client != clients.end(); ++it_client)
+                    {
+                        if ((*it_client)->get_socket() == client.get_socket())
+                            continue;
+                        std::string rq = ":" + client.get_nickname() + "!" + client.get_username() + "@" + client.get_ip() + " PRIVMSG " + target_name + " :" + it->params[1] + "\r\n";
+                        if (send((*it_client)->get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                            fatal("Error on send");
+                    }
+                }
+                else
+                {
+
+                }
             }
         }
         if (client.get_first_time_connected() == true)
@@ -314,7 +352,8 @@ Client &Server::get_client_by_nick(std::string nickname)
     }
     else
     {
-        std::cout << "0;31" << "Client not found : " << nickname << std::endl;
+        std::cout << "0;31"
+                  << "Client not found : " << nickname << std::endl;
         throw std::runtime_error("Client not found");
     }
 }

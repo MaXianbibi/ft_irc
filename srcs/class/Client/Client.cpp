@@ -66,7 +66,6 @@ void Client::parse_list_command()
         {
             if (line[0] == ':')
             {
-                params.push_back(line.substr(1));
                 break;
             }
             params.push_back(line.substr(0, pos));
