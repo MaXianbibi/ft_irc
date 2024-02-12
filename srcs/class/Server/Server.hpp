@@ -71,11 +71,6 @@ public:
     void newClient();
     void newMessage(int &i);
 
-    void PrivmsgCommand(std::vector<commands>::iterator &it, Client &client);
-
-    void joinCommand(std::vector<commands>::iterator &it, Client &client);
-
-    void WhoisCommand(std::vector<commands>::iterator &it, Client &client, int &i);
 
     // commands
     // PRIVMSG #channel :Your message here\r\n
@@ -87,6 +82,9 @@ public:
     void CapCommand(std::vector<commands>::iterator &it, int &i);
     void msgToEveryClient(int &i, char buffer[1024], int n);
     void ModeCommand(std::vector<commands>::iterator &it, int &i);
+    void PrivmsgCommand(std::vector<commands>::iterator &it, Client &client);
+    void joinCommand(std::vector<commands>::iterator &it, Client &client);
+    void WhoisCommand(std::vector<commands>::iterator &it, Client &client, int &i);
 
     // over multiple clients
     int selectInit();
