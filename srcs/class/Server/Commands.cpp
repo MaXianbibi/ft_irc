@@ -247,7 +247,7 @@ void Server::joinCommand(std::vector<commands>::iterator &it, Client &client)
         std::string channel = it->params[0];
         if (channels.find(channel) != channels.end())
         {
-            channels[channel].push_back(&client);
+            channels[channel].clients.push_back(&client);
             std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
             if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
                 fatal("Error on send");
@@ -255,12 +255,8 @@ void Server::joinCommand(std::vector<commands>::iterator &it, Client &client)
             if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
                 fatal("Error on send");
             std::string userList = "";
-            for (std::vector<Client *>::iterator it = channels[channel].begin(); it != channels[channel].end(); ++it)
+            for (std::vector<Client *>::iterator it = channels[channel].clients.begin(); it != channels[channel].clients.end(); ++it)
             {
-                if (*it == NULL)
-                {
-                    std::cout << "test " << std::endl;
-                }
                 userList.append((*it)->get_nickname());
                 userList.append(" ");
             }
@@ -276,8 +272,8 @@ void Server::joinCommand(std::vector<commands>::iterator &it, Client &client)
         else
         {
             std::cout << "Channel created" << std::endl;
-            std::vector<Client *> new_channel;
-            new_channel.push_back(&client);
+            s_channel new_channel;
+            new_channel.clients.push_back(&client);
             channels[channel] = new_channel;
             std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
             if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)

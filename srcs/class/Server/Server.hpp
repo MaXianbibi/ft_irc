@@ -17,13 +17,13 @@
 
 #define CLIENT client.getNick() + "!" + client.getUser() + "@" + client.getIP()
 
-struct channel
+struct s_channel
 {
     std::string mode;
     std::vector<Client*> clients;
     std::string topic;
     std::string password;
-}; typedef struct channel channel;
+}; typedef struct s_channel s_channel;
 
 class Server
 {
@@ -48,7 +48,7 @@ private:
     std::map<std::string, Client* > clients_by_nick;
 
     // channels
-    std::map<std::string, std::vector<Client*> > channels;
+    std::map<std::string, s_channel > channels;
 
 public:
     Server();

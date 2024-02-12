@@ -227,6 +227,10 @@ void Server::newMessage(int &i)
                 WhoisCommand(it, client, i);
             else if (it->command == "JOIN")
                 joinCommand(it, client);
+            else if (it->command == "PRIVMSG")
+            {
+                
+            }
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);
