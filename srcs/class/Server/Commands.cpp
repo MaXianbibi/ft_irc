@@ -55,8 +55,8 @@ void Server::UserCommand(Client &client, std::vector<commands>::iterator &it)
 /// @param i client socket fd
 void Server::QuitCommand(int &i)
 {
-
     FD_CLR(i, &master); // Remove from master set
+    
     clients_by_nick.erase(clients.at(i).get_nickname());
     clients.erase(i);   // Remove from clients map
     close(i);           // Bye!
@@ -106,7 +106,6 @@ void Server::FirstTimeConnectionMsg(Client &client, int &i)
     send(i, msgWelcome.c_str(), msgWelcome.size(), 0);
     client.set_first_time_connected(false);
 }
-
 
 /// @brief Repond par les informations du client visé
 /// @param it ( iterator of the command )
@@ -230,4 +229,58 @@ void Server::msgToEveryClient(int &i, char buffer[1024], int n)
             }
         }
     }
+}
+
+/// @brief Join ou cree un channel 
+/// @param it iterator of the command
+/// @param client client info
+void Server::joinCommand(std::vector<commands>::iterator &it, Client &client)
+{
+        std::string serveur_name = SERVER_NAME;
+        if (it->params.size() == 0)
+        {
+            std::string rq = ":" + serveur_name + " 461 " + client.get_nickname() + " JOIN :Not enough parameters\r\n";
+            if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                fatal("Error on send");
+            return;
+        }
+        std::string channel = it->params[0];
+        if (channels.find(channel) != channels.end())
+        {
+            channels[channel].push_back(&client);
+            std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
+            if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                fatal("Error on send");
+            rq = ":" + serveur_name + " 332 " + client.get_nickname() + " " + channel + " :Discussion générale\r\n";
+            if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                fatal("Error on send");
+            std::string userList = "";
+            for (std::vector<Client *>::iterator it = channels[channel].begin(); it != channels[channel].end(); ++it)
+            {
+                if (*it == NULL)
+                {
+                    std::cout << "test " << std::endl;
+                }
+                userList.append((*it)->get_nickname());
+                userList.append(" ");
+            }
+            // :irc.example.com 353 Alice = #chat :Alice Bob Carol
+            rq = ":" + serveur_name + " 353 " + client.get_nickname() + " = " + channel + " :" + userList + "\r\n";
+            if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                fatal("Error on send");
+            // :irc.example.com 366 Alice #chat :End of /NAMES list
+            rq = ":" + serveur_name + " 366 " + client.get_nickname() + " " + channel + " :End of /NAMES list\r\n";
+            if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                fatal("Error on send");
+        }
+        else
+        {
+            std::cout << "Channel created" << std::endl;
+            std::vector<Client *> new_channel;
+            new_channel.push_back(&client);
+            channels[channel] = new_channel;
+            std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
+            if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                fatal("Error on send");
+        }
 }

@@ -17,6 +17,14 @@
 
 #define CLIENT client.getNick() + "!" + client.getUser() + "@" + client.getIP()
 
+struct channel
+{
+    std::string mode;
+    std::vector<Client*> clients;
+    std::string topic;
+    std::string password;
+}; typedef struct channel channel;
+
 class Server
 {
 private:
@@ -62,6 +70,8 @@ public:
     int loopSocket();
     void newClient();
     void newMessage(int &i);
+
+    void joinCommand(std::vector<commands>::iterator &it, Client &client);
 
     void WhoisCommand(std::vector<commands>::iterator &it, Client &client, int &i);
 
