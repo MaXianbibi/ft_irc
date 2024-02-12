@@ -266,7 +266,20 @@ void Server::newMessage(int &i)
                 }
                 else
                 {
+                    if (clients_by_nick.find(target_name) == clients_by_nick.end())
+                    {
+                        std::cout << "target : " << target_name << " not found\n";
+                        std::string rq = ":" + serveur_name + " 401 " + client.get_nickname() + " " + target_name + " :No such nick/channel\r\n";
+                        if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                            fatal("Error on send");
+                        return;
+                    }
+                    Client *target = clients_by_nick[target_name];
 
+                    // :<expéditeur>!user@host PRIVMSG <destinataire> :<message>
+                    std::string rq = ":" + client.get_nickname() + "!" + client.get_username() + "@host" + " PRIVMSG " + target_name + " :" + it->params[1] + "\r\n"; 
+                    if (send(target->get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                        fatal("Error on send");
                 }
             }
         }
