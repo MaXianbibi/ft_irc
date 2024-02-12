@@ -5,14 +5,9 @@ TODO:
             - :YourServer 372 justin :- Welcome to our IRC server.
                                                 Please behave responsibly.
             - :YourServer 376 justin :End of /MOTD command.
-        - PRVT
         - Implementation des chanels
             - implementer les mod selon les chanels
-
         - WHOIS
             - code  312  qui indique dans quelle serveur il appartient
             - 313 Indique si l'utilisateur est un opérateur IRC.
-            - 
-        - JOIN
-        - PRIVATE MSG
 
