@@ -278,6 +278,12 @@ void Server::joinCommand(std::vector<commands>::iterator &it, Client &client)
             std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
             if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
                 fatal("Error on send");
+
+            // :<servername> MODE #<channelname> +o <nickname>
+            client.set_mode("o");
+            rq = ":" + serveur_name + " MODE " + channel + " +o " + client.get_nickname() + "\r\n";
+            if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                fatal("Error on send");
         }
 }
 
@@ -334,4 +340,47 @@ void Server::PrivmsgCommand(std::vector<commands>::iterator &it, Client &client)
         if (send(target->get_socket(), rq.c_str(), rq.size(), 0) < 0)
             fatal("Error on send");
     }
+}
+
+/// @brief Si le client est op, il peut kick un autre client
+/// @param it  (command & params)
+/// @param client (client)
+void Server::KickCommand(std::vector<commands>::iterator &it, Client &client)
+{
+        std::string channelName = it->params[0];
+        std::string server_name = SERVER_NAME;
+        if (channels.find(channelName) == channels.end())
+        {
+            client.sendMessage(":" + server_name + " 403 " + client.get_nickname() + " " + channelName + " :No such channel\r\n");
+            return;
+        }
+        if (!client.isOperator())
+        {
+            client.sendMessage(":" + server_name + " 482 " + client.get_nickname() + " :You're not a channel operator\r\n");
+            return;
+        }
+
+        std::cout << client.isOperator() << std::endl;
+
+        s_channel &channel = channels.at(channelName);
+
+        Client *target = channel.get_client_by_nick(it->params[1]);
+        if (target == NULL)
+        {
+            client.sendMessage(":" + server_name + " 401 " + client.get_nickname() + " " + it->params[1] + " :No such nick/channel\r\n");
+            return;
+        }
+
+        channel.kickClient(*target);
+        if (it->params.size() > 2)
+        {
+            std::string reason = it->params[2];
+            channel.broadcast(":" + client.get_nickname() + " KICK " + channelName + " " + target->get_nickname() + " :" + reason + "\r\n");
+            (target)->sendMessage(":" + server_name + " KICK " + channelName + " " + target->get_nickname() + " :" + reason + "\r\n");
+        }
+        else
+        {
+            channel.broadcast(":" + client.get_nickname() + " KICK " + channelName + " " + target->get_nickname() + " :Kicked by " + client.get_nickname() + "\r\n");
+            (target)->sendMessage(":" + server_name + " KICK " + channelName + " " + target->get_nickname() + " :Kicked by " + client.get_nickname() + "\r\n");
+        }
 }

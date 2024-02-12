@@ -234,6 +234,8 @@ void Server::newMessage(int &i)
                 joinCommand(it, client);
             else if (it->command == "PRIVMSG")
                 PrivmsgCommand(it, client);
+            else if (it->command == "KICK")
+                KickCommand(it, client);
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);
@@ -322,6 +324,8 @@ Client &Server::get_client_by_nick(std::string nickname)
         throw std::runtime_error("Client not found");
     }
 }
+
+
 
 // Setter
 void Server::set_sockfd(int sockfd) { this->sockfd = sockfd; }

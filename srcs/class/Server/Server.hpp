@@ -19,10 +19,26 @@
 
 struct s_channel
 {
-    std::string mode;
+    struct 
+    {
+        bool i;
+        bool t;
+        bool k;
+        bool o;
+        bool l;
+    } mode;
+    
+
     std::vector<Client*> clients;
     std::string topic;
     std::string password;
+
+
+    // func
+    void kickClient(Client &target);
+    void broadcast(std::string message);
+    Client* get_client_by_nick(std::string nickname);
+    
 }; typedef struct s_channel s_channel;
 
 class Server
@@ -66,11 +82,13 @@ public:
     int closeSocket();
     void Log(char buffer[1024]);
 
+
     // over one client ( u need to use acceptSocket() before
     int loopSocket();
     void newClient();
     void newMessage(int &i);
 
+    void KickCommand(std::vector<commands>::iterator &it, Client &client);
 
     // commands
     // PRIVMSG #channel :Your message here\r\n

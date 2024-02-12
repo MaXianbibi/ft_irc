@@ -83,6 +83,23 @@ void Client::parse_list_command()
     clear_command_list();
 }
 
+
+/// @brief  send a message to the client
+/// @param message 
+void Client::sendMessage(std::string message)
+{
+    if (send(_socket, message.c_str(), message.size(), 0) == -1)
+        perror("ERROR on send");
+}
+
+
+/// @brief is he operator of the channel
+/// @return 
+bool Client::isOperator()
+{
+    return _mode.find('o') != std::string::npos;
+}
+
 // getter
 std::string Client::get_nickname() const { return _nickname; }
 std::string Client::get_username() const { return _username; }

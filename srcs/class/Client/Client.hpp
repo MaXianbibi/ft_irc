@@ -51,7 +51,8 @@ private:
     void clear_commands_parsed();
     void parse_command();
     void parse_list_command();
-
+    void sendMessage(std::string message);
+    bool isOperator();
     // getter
     std::string get_nickname() const;
     std::string get_username() const;
