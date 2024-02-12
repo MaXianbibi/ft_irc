@@ -4,7 +4,7 @@ FT_IRC est un serveur IRC implémenté en C++ suivant la norme C++98. Ce projet 
 
 # how does it work ? : 
 
-./ircserv <port> <password>
+    ./ircserv <port> <password>
 
     port : Le numéro du port sur lequel votre serveur acceptera les connexions entrantes.
     password : Le mot de passe permettant de s’identifier auprès de votre serveur
