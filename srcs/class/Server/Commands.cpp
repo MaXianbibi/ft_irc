@@ -402,6 +402,7 @@ void Server::TopicCommand(std::vector<commands>::iterator &it, Client &client)
     std::string channelName = it->params[0];    
     if(is_channel_by_name(channelName) == FAILURE)
     {
+        std::cout << "DEBUG : " << is_channel_by_name(channelName) << std::endl;
         send_error_403(client, channelName);
         return ;
     }
@@ -437,6 +438,9 @@ void Server::TopicCommand(std::vector<commands>::iterator &it, Client &client)
 /// @return Return true if the channel exists, false otherwise
 bool Server::is_channel_by_name(std::string &channelName)
 {
+    if (channelName[0] != '#')
+        channelName = "#" + channelName;
+        
     if (channels.find(channelName) == channels.end())
         return FAILURE;
     return SUCCESS;
