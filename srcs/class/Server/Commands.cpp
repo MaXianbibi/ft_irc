@@ -63,12 +63,11 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
 
 
         client.sendMessage(rq);
-        // if (!client.get_join_channel().empty())
+        // if (!client.get_join_channel().empty()) // cela ne marche pas pour les channels prescedemment rejoint, peut etre le client IRSSI ?
         // {
         //     s_channel &channel = channels.at(client.get_join_channel());            
         //     channel.broadcast(rq);
         // }
-        // else 
     }
 }
 
@@ -183,40 +182,38 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     /// @param i
     void Server::ModeCommand(std::vector<commands>::iterator & it, Client & client)
     {
-        (void)it;
-        (void)client;
-        // if (it->params.size() < 2)
-        // {
-        //     send_error_461(client);
-        //     return;
-        // }
+        if (it->params.size() < 2)
+        {
+            send_error_461(client);
+            return;
+        }
 
-        // std::string target = it->params[0];
-        // std::string mode = it->params[1];
-        // std::string param = it->params.size() > 2 ? it->params[2] : "";
+        std::string target = it->params[0];
+        std::string mode = it->params[1];
+        std::string param = it->params.size() > 2 ? it->params[2] : "";
 
-        // if (isChannelName(target))
-        // {
-        //     std::string channelName = target;
-        //     if (is_channel_by_name(channelName) == FAILURE)
-        //     {
-        //         send_error_403(client, channelName);
-        //         return;
-        //     }
+        if (isChannelName(target))
+        {
+            std::string channelName = target;
+            if (is_channel_by_name(channelName) == FAILURE)
+            {
+                send_error_403(client, channelName);
+                return;
+            }
 
-        //     s_channel &channel = channels.at(channelName);
-        //     if (!channel.is_client_in_channel(client))
-        //     {
-        //         send_error_442(client, channelName);
-        //         return;
-        //     }
-        //     if (!client.isOperator())
-        //     {
-        //         send_error_482(client, channelName);
-        //         return;
-        //     }
-        //     applyChannelMode(channel, client, mode, param);
-        // }
+            s_channel &channel = channels.at(channelName);
+            if (!channel.is_client_in_channel(client))
+            {
+                send_error_442(client, channelName);
+                return;
+            }
+            if (!client.isOperator())
+            {
+                send_error_482(client, channelName);
+                return;
+            }
+            applyChannelMode(channel, client, mode, param);
+        }
     }
 
     /// @brief C'est un switchcase qui gere les modes d'un channel

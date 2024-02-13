@@ -23,7 +23,6 @@ FT_IRC est un serveur IRC implémenté en C++ suivant la norme C++98. Ce projet 
 
 
 # TODO 
-    Operateur                     
     Commande operateur :          
     Different mode de channel     
     changer le mode des fctnl
