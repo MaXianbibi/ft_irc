@@ -136,50 +136,21 @@ void Server::WhoisCommand(std::vector<commands>::iterator &it, Client &client, i
 /// @bug defois le client n'est pas trouvé
 /// @param it 
 /// @param i 
-void Server::ModeCommand(std::vector<commands>::iterator &it, int &i)
+void Server::ModeCommand(std::vector<commands>::iterator &it, Client &client)
 {
     if (it->params.size() < 1)
         return;
     if (it->params[0].empty())
         return;
     std::string caracters = "#&!+";
-
     if (caracters.find(it->params[0][0]) != std::string::npos)
     {
         std::cout << "channel" << std::endl; // C'est un canal
     }
     else
     {
-        try
-        {
-            Client &target = get_client_by_nick(it->params[0]);
-            if (it->params[1].empty())
-                return;
-            if (it->params[1][0] == '+')
-            {
-                for (size_t i = 1; i < it->params[1].size(); i++)
-                {
-                    if (target.get_mode().find(it->params[1][i]) == std::string::npos)
-                        target.set_mode(target.get_mode() + it->params[1][i]);
-                }
-            }
-            else if (it->params[1][0] == '-')
-            {
-                for (size_t i = 1; i < it->params[1].size(); i++)
-                {
-                    if (target.get_mode().find(it->params[1][i]) != std::string::npos)
-                        target.set_mode(target.get_mode().erase(target.get_mode().find(it->params[1][i]), 1));
-                }
-            }
-            // :<server_name> 221 <nickname> :+i
-            std::string rp = ":" + std::string(SERVER_NAME) + " 221 " + target.get_nickname() + " :+" + target.get_mode() + "\r\n";
-            if (send(i, rp.c_str(), rp.size(), 0) < 0)
-                perror("ERROR on send");
-        }
-        catch (std::runtime_error &e)
-        {
-            std::cerr << e.what() << std::endl;
-        }
+        (void)client;
+       
     }
 }
 
@@ -285,7 +256,7 @@ void Server::joinCommand(std::vector<commands>::iterator &it, Client &client)
                 fatal("Error on send");
 
             // :<servername> MODE #<channelname> +o <nickname>
-            client.set_mode("o");
+            client.mode.o = true;
             rq = ":" + serveur_name + " MODE " + channel + " +o " + client.get_nickname() + "\r\n";
             if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
                 fatal("Error on send");

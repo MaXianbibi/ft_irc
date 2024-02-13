@@ -103,7 +103,7 @@ public:
     void FirstTimeConnectionMsg(Client &client, int &i);
     void CapCommand(std::vector<commands>::iterator &it, int &i);
     void msgToEveryClient(int &i, char buffer[1024], int n);
-    void ModeCommand(std::vector<commands>::iterator &it, int &i);
+    void ModeCommand(std::vector<commands>::iterator &it, Client &client);
     void PrivmsgCommand(std::vector<commands>::iterator &it, Client &client);
     void joinCommand(std::vector<commands>::iterator &it, Client &client);
     void WhoisCommand(std::vector<commands>::iterator &it, Client &client, int &i);

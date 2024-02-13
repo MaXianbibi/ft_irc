@@ -3,7 +3,7 @@
 Client::Client()
 {
     _first_time_connected = true;
-    _mode = "";
+    mode.o = false;
 }
 
 Client::~Client()
@@ -97,7 +97,7 @@ void Client::sendMessage(std::string message)
 /// @return 
 bool Client::isOperator()
 {
-    return _mode.find('o') != std::string::npos;
+    return mode.o;
 }
 
 // getter
@@ -111,7 +111,6 @@ int Client::get_socket() const { return _socket; }
 std::string Client::get_ip() const { return _ip; }
 int Client::get_port() const { return _port; }
 std::vector<commands> Client::get_commands_parsed() const { return _commands_parsed; }
-std::string Client::get_mode() const { return _mode; }
 std::string Client::get_unused() const { return _unused; }
 bool Client::get_first_time_connected() const { return _first_time_connected; }
 
@@ -124,6 +123,7 @@ void Client::set_command(std::string command) { buffer_command = command; }
 void Client::set_socket(int socket) { _socket = socket; }
 void Client::set_ip(std::string ip) { _ip = ip; }
 void Client::set_port(int port) { _port = port; }
-void Client::set_mode(std::string mode) { _mode = mode; }
+
+
 void Client::set_unused(std::string unused) { _unused = unused; }
 void Client::set_first_time_connected(bool first_time_connected) { _first_time_connected = first_time_connected; }

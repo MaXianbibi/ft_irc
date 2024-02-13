@@ -227,7 +227,7 @@ void Server::newMessage(int &i)
             else if (it->command == "CAP")
                 CapCommand(it, i);
             else if (it->command == "MODE")
-                ModeCommand(it, i);
+                ModeCommand(it, client);
             else if (it->command == "WHOIS")
                 WhoisCommand(it, client, i);
             else if (it->command == "JOIN")

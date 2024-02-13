@@ -25,9 +25,9 @@ private:
 
         // USER
         std::string _username;      // USER param 0
-        std::string _mode;          // USER param 1
         std::string _unused;        // USER param 2
         std::string _realname;      // USER param 3
+
 
         // HOSTNAME
         std::string _hostname;     // ?? jsp si on va l'utiliser
@@ -53,6 +53,13 @@ private:
     void parse_list_command();
     void sendMessage(std::string message);
     bool isOperator();
+    bool get_first_time_connected() const;
+
+    struct 
+    {
+        bool o;
+    } mode;
+
     // getter
     std::string get_nickname() const;
     std::string get_username() const;
@@ -63,11 +70,9 @@ private:
     int get_socket() const;
     std::string get_ip() const;
     int get_port() const;
-    std::string get_mode() const;
     std::string get_unused() const;
     std::vector<commands> get_commands_parsed() const;
     
-    bool get_first_time_connected() const;
 
     // setter
     void set_nickname(std::string nickname);
@@ -78,7 +83,6 @@ private:
     void set_socket(int socket);
     void set_ip(std::string ip);
     void set_port(int port);
-    void set_mode(std::string mode);
     void set_unused(std::string unused);
     void set_first_time_connected(bool first_time_connected);
 
