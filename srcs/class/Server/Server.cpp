@@ -238,7 +238,8 @@ void Server::newMessage(int &i)
                 KickCommand(it, client);
             else if (it->command == "TOPIC")
                 TopicCommand(it, client);
-            
+            else if (it->command == "INVITE")
+                InviteCommand(it, client);
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);

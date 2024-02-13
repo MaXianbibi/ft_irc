@@ -36,3 +36,17 @@ Client* s_channel::get_client_by_nick(std::string nickname)
     }
     return NULL;
 }
+
+
+/// @brief  check if a client is in the channel
+/// @param client 
+/// @return true if the client is in the channel, false otherwise 
+bool s_channel::is_client_in_channel(Client &client)
+{
+    for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); ++it)
+    {
+        if (*it == &client)
+            return true;
+    }
+    return false;
+}

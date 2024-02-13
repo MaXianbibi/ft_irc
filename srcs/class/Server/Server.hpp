@@ -39,6 +39,7 @@ struct s_channel
     void kickClient(Client &target);
     void broadcast(std::string message);
     Client* get_client_by_nick(std::string nickname);
+    bool is_client_in_channel(Client &client);
     
 }; typedef struct s_channel s_channel;
 
@@ -82,6 +83,7 @@ public:
     int sendSocket(const char *message);
     int closeSocket();
     void Log(char buffer[1024]);
+    bool is_channel_by_name(std::string &channelName);
 
 
     // over one client ( u need to use acceptSocket() before
@@ -89,7 +91,6 @@ public:
     void newClient();
     void newMessage(int &i);
 
-    void KickCommand(std::vector<commands>::iterator &it, Client &client);
 
     // commands
     // PRIVMSG #channel :Your message here\r\n
@@ -105,9 +106,15 @@ public:
     void joinCommand(std::vector<commands>::iterator &it, Client &client);
     void WhoisCommand(std::vector<commands>::iterator &it, Client &client, int &i);
     void TopicCommand(std::vector<commands>::iterator &it, Client &client);
+    void KickCommand(std::vector<commands>::iterator &it, Client &client);
+    void InviteCommand(std::vector<commands>::iterator &it, Client &client);
 
-    bool is_channel_by_name(std::string &channelName);
 
+    // send error
+    void send_error_403(Client &client, std::string &channelName);
+    void send_error_461(Client &client);
+    void send_error_482(Client &client, std::string &channelName);
+    void send_error_442(Client &client, std::string &channelName);
     // over multiple clients
     int selectInit();
     int selectLoop();

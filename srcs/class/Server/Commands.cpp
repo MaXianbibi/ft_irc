@@ -274,6 +274,9 @@ void Server::joinCommand(std::vector<commands>::iterator &it, Client &client)
         {
             std::cout << "Channel created" << std::endl;
             s_channel new_channel;
+            
+            memset(&new_channel.mode, 0, sizeof(new_channel.mode));
+
             new_channel.clients.push_back(&client);
             new_channel.topic = DEFAULT_TOPIC;
             channels[channel] = new_channel;
@@ -384,36 +387,74 @@ void Server::KickCommand(std::vector<commands>::iterator &it, Client &client)
         }
 }
 
+/// @brief Change le topic du channel
+/// @param it command & params
+/// @param client client infos
 void Server::TopicCommand(std::vector<commands>::iterator &it, Client &client)
 {
     std::string server_name = SERVER_NAME;
-    if (it->params.size() == 0)
+    if (it->params.size() != 2)
     {
-        std::string rq = ":" + server_name + " 461 " + client.get_nickname() + " TOPIC :Not enough parameters\r\n";
-        if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
-            fatal("Error on send");
-        return;
+        send_error_461(client);
+        return ;
     }
 
-    std::string channelName = it->params[0];
-    bool retFlag;
+    std::string channelName = it->params[0];    
     if(is_channel_by_name(channelName) == FAILURE)
     {
-        std::string rq = ":" + server_name + " 403 " + client.get_nickname() + " " + channelName + " :No such channel\r\n";
-        if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
-            fatal("Error on send");
-        return;
+        send_error_403(client, channelName);
+        return ;
     }
 
     s_channel &channel = channels.at(channelName);
     
+    if (!channel.is_client_in_channel(client))
+    {
+        send_error_442(client, channelName);
+        return;
+    }
 
 
+    if (!client.isOperator() && !channel.mode.t)
+    {
+        std::cout << "DEBUG: " << client.isOperator() << " " << channel.mode.t << std::endl;
+        send_error_482(client, channelName);
+        return;
+    }
+
+
+    std::string newTopic = it->params[1];
+    if (it->params[1].empty())
+        newTopic = channel.topic;
+    channel.topic = newTopic;
+    std::string rq = ":" + server_name + " 332 " + client.get_nickname() + " " + channelName + " :" + newTopic + "\r\n";
+    channel.broadcast(rq);
 }
 
+
+/// @brief Cherche un channel par son nom
+/// @param channelName 
+/// @return Return true if the channel exists, false otherwise
 bool Server::is_channel_by_name(std::string &channelName)
 {
     if (channels.find(channelName) == channels.end())
         return FAILURE;
     return SUCCESS;
+}
+
+void Server::InviteCommand(std::vector<commands>::iterator &it, Client &client)
+{
+    std::string server_name = SERVER_NAME;
+    if (it->params.size() != 2)
+    {
+        send_error_461(client);
+        return ;
+    }
+
+    std::string channelName = it->params[0];    
+    if(is_channel_by_name(channelName) == FAILURE)
+    {
+        send_error_403(client, channelName);
+        return ;
+    }
 }
