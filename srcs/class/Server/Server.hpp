@@ -36,7 +36,7 @@ struct s_channel
 
     std::string topic;
     std::string password;
-
+    unsigned int limit;
 
     // func
     void kickClient(Client &target);

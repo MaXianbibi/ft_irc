@@ -138,19 +138,146 @@ void Server::WhoisCommand(std::vector<commands>::iterator &it, Client &client, i
 /// @param i 
 void Server::ModeCommand(std::vector<commands>::iterator &it, Client &client)
 {
-    if (it->params.size() < 1)
-        return;
-    if (it->params[0].empty())
-        return;
+    std::string server_name = SERVER_NAME;
+    if (it->params.size() < 2)
+    {
+        send_error_461(client);
+        return ;
+    }
     std::string caracters = "#&!+";
     if (caracters.find(it->params[0][0]) != std::string::npos)
     {
-        std::cout << "channel" << std::endl; // C'est un canal
-    }
-    else
-    {
-        (void)client;
-       
+        std::string channelName = it->params[0];
+        if(is_channel_by_name(channelName) == FAILURE)
+        {
+            send_error_403(client, channelName);
+            return ;
+        }
+        s_channel &channel = channels.at(channelName);
+        if (!channel.is_client_in_channel(client))
+        {
+            send_error_442(client, channelName);
+            return;
+        }
+        if (!client.isOperator())
+        {
+            send_error_482(client, it->params[0]);
+            return ;
+        }
+        if (it->params[1].size() < 2)
+        {
+            send_error_461(client);
+            return ;
+        }
+
+
+        if (it->params[1] == "+o" || it->params[1] == "-o")
+        {
+            if (it->params.size() < 3)
+            {
+                send_error_461(client);
+                return ;
+            }
+
+            Client *target = get_client_by_nick_ptr(it->params[2]);
+            if (target == NULL)
+            {
+                send_error_401(client, it->params[2]);
+                return ;
+            }
+
+            if (channel.is_client_in_channel(*target))
+            {
+                send_error_442(client, channelName);
+                return ;
+            }
+            if (it->params[1] == "+o")
+            {
+                target->mode.o = true;
+                std::string rq = ":" + server_name + " MODE " + channelName + " +o " + target->get_nickname() + "\r\n";
+                channel.broadcast(rq);
+            }
+            else
+            {
+                target->mode.o = false;
+                std::string rq = ":" + server_name + " MODE " + channelName + " -o " + target->get_nickname() + "\r\n";
+                channel.broadcast(rq);
+            }
+        } 
+        else if (it->params[1] == "+t" || it->params[1] == "-t")
+        {
+            if (it->params[1] == "+t")
+            {
+                channel.mode.t = true;
+                std::string rq = ":" + server_name + " MODE " + channelName + " +t\r\n";
+                channel.broadcast(rq);
+            }
+            else
+            {
+                channel.mode.t = false;
+                std::string rq = ":" + server_name + " MODE " + channelName + " -t\r\n";
+                channel.broadcast(rq);
+            }
+        }
+        else if (it->params[1] == "+i" || it->params[1] == "-i")
+        {
+            if (it->params[1] == "+i")
+            {
+                channel.mode.i = true;
+                std::string rq = ":" + server_name + " MODE " + channelName + " +i\r\n";
+                channel.broadcast(rq);
+            }
+            else
+            {
+                channel.mode.i = false;
+                std::string rq = ":" + server_name + " MODE " + channelName + " -i\r\n";
+                channel.broadcast(rq);
+            }
+        }
+        else if (it->params[1] == "+k" || it->params[1] == "-k")
+        {
+            if (it->params[1] == "+k")
+            {
+                if (it->params.size() < 3)
+                {
+                    send_error_461(client);
+                    return ;
+                }
+                channel.mode.k = true;
+                channel.password = it->params[2];
+                std::string rq = ":" + server_name + " MODE " + channelName + " +k " + channel.password + "\r\n";
+                channel.broadcast(rq);
+            }
+            else
+            {
+                channel.mode.k = false;
+                channel.password = "";
+                std::string rq = ":" + server_name + " MODE " + channelName + " -k\r\n";
+                channel.broadcast(rq);
+            }
+        }
+        else if (it->params[1] == "+l" || it->params[1] == "-l")
+        {
+            if (it->params[1] == "+l")
+            {
+                if (it->params.size() < 3)
+                {
+                    send_error_461(client);
+                    return ;
+                }
+                channel.mode.l = true;
+                channel.limit = std::stoi(it->params[2]);
+                std::string rq = ":" + server_name + " MODE " + channelName + " +l " + std::to_string(channel.limit) + "\r\n";
+                channel.broadcast(rq);
+            }
+            else
+            {
+                channel.mode.l = false;
+                channel.limit = 0;
+                std::string rq = ":" + server_name + " MODE " + channelName + " -l\r\n";
+                channel.broadcast(rq);
+            }
+        }
     }
 }
 
