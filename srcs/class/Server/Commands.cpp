@@ -132,154 +132,101 @@ void Server::WhoisCommand(std::vector<commands>::iterator &it, Client &client, i
         }
 }
 
+/// @brief Si le name commence par #, c'est un channel
+/// @param name nom du channel
+/// @return vrai si c'est un channel, faux sinon
+bool isChannelName(std::string &name) {
+    return name[0] == '#';
+}
+
 /// @brief gere la command mode selon si c'est un channel ou un client
 /// @bug defois le client n'est pas trouvé
 /// @param it 
 /// @param i 
-void Server::ModeCommand(std::vector<commands>::iterator &it, Client &client)
-{
-    std::string server_name = SERVER_NAME;
-    if (it->params.size() < 2)
-    {
+void Server::ModeCommand(std::vector<commands>::iterator &it, Client &client) {
+    if (it->params.size() < 2) {
         send_error_461(client);
-        return ;
+        return;
     }
-    std::string caracters = "#&!+";
-    if (caracters.find(it->params[0][0]) != std::string::npos)
-    {
-        std::string channelName = it->params[0];
-        if(is_channel_by_name(channelName) == FAILURE)
-        {
+
+    std::string target = it->params[0];
+    std::string mode = it->params[1];
+    std::string param = it->params.size() > 2 ? it->params[2] : "";
+
+    if (isChannelName(target)) {
+        std::string channelName = target;
+        if (is_channel_by_name(channelName) == FAILURE) {
             send_error_403(client, channelName);
-            return ;
+            return;
         }
+
         s_channel &channel = channels.at(channelName);
-        if (!channel.is_client_in_channel(client))
-        {
+        if (!channel.is_client_in_channel(client)) {
             send_error_442(client, channelName);
             return;
         }
-        if (!client.isOperator())
-        {
-            send_error_482(client, it->params[0]);
-            return ;
+        if (!client.isOperator()) {
+            send_error_482(client, channelName);
+            return;
         }
-        if (it->params[1].size() < 2)
-        {
-            send_error_461(client);
-            return ;
-        }
+        applyChannelMode(channel, client, mode, param);
+    } 
+}
 
 
-        if (it->params[1] == "+o" || it->params[1] == "-o")
-        {
-            if (it->params.size() < 3)
-            {
-                send_error_461(client);
-                return ;
-            }
 
-            Client *target = get_client_by_nick_ptr(it->params[2]);
-            if (target == NULL)
-            {
-                send_error_401(client, it->params[2]);
-                return ;
-            }
+/// @brief C'est un switchcase qui gere les modes d'un channel
+/// @param channel le channel
+/// @param client le client
+/// @param mode le mode souhaiter
+/// @param param le 3eme parametre de la commande mode ( target, limit, password )
+void Server::applyChannelMode(s_channel &channel, Client &client, const std::string &mode, const std::string &param = "") {
+    std::string server_name = SERVER_NAME;
+    bool modeSet = mode[0] == '+';
+    char modeChar = mode[1];
 
-            if (channel.is_client_in_channel(*target))
-            {
-                send_error_442(client, channelName);
-                return ;
+    switch (modeChar) {
+        case 'o': {  // Mode operator
+            Client *target = get_client_by_nick_ptr(param);
+            if (!target) {
+                std::string targetName = param;
+                send_error_401(client, targetName);
+                return;
             }
-            if (it->params[1] == "+o")
-            {
-                target->mode.o = true;
-                std::string rq = ":" + server_name + " MODE " + channelName + " +o " + target->get_nickname() + "\r\n";
-                channel.broadcast(rq);
-            }
-            else
-            {
-                target->mode.o = false;
-                std::string rq = ":" + server_name + " MODE " + channelName + " -o " + target->get_nickname() + "\r\n";
-                channel.broadcast(rq);
-            }
-        } 
-        else if (it->params[1] == "+t" || it->params[1] == "-t")
-        {
-            if (it->params[1] == "+t")
-            {
-                channel.mode.t = true;
-                std::string rq = ":" + server_name + " MODE " + channelName + " +t\r\n";
-                channel.broadcast(rq);
-            }
-            else
-            {
-                channel.mode.t = false;
-                std::string rq = ":" + server_name + " MODE " + channelName + " -t\r\n";
-                channel.broadcast(rq);
-            }
+            target->mode.o = modeSet;
+            break;
         }
-        else if (it->params[1] == "+i" || it->params[1] == "-i")
-        {
-            if (it->params[1] == "+i")
-            {
-                channel.mode.i = true;
-                std::string rq = ":" + server_name + " MODE " + channelName + " +i\r\n";
-                channel.broadcast(rq);
-            }
-            else
-            {
-                channel.mode.i = false;
-                std::string rq = ":" + server_name + " MODE " + channelName + " -i\r\n";
-                channel.broadcast(rq);
-            }
-        }
-        else if (it->params[1] == "+k" || it->params[1] == "-k")
-        {
-            if (it->params[1] == "+k")
-            {
-                if (it->params.size() < 3)
-                {
-                    send_error_461(client);
-                    return ;
-                }
+        case 't': // Mode topic
+            channel.mode.t = modeSet;
+            break;
+        case 'i': // Mode invite-only
+            channel.mode.i = modeSet;
+            break;
+        case 'k': // Mot de passe
+            if (modeSet) {
                 channel.mode.k = true;
-                channel.password = it->params[2];
-                std::string rq = ":" + server_name + " MODE " + channelName + " +k " + channel.password + "\r\n";
-                channel.broadcast(rq);
-            }
-            else
-            {
+                channel.password = param;
+            } else {
                 channel.mode.k = false;
                 channel.password = "";
-                std::string rq = ":" + server_name + " MODE " + channelName + " -k\r\n";
-                channel.broadcast(rq);
             }
-        }
-        else if (it->params[1] == "+l" || it->params[1] == "-l")
-        {
-            if (it->params[1] == "+l")
-            {
-                if (it->params.size() < 3)
-                {
-                    send_error_461(client);
-                    return ;
-                }
+            break;
+        case 'l': // Limite d'utilisateurs
+            if (modeSet) {
                 channel.mode.l = true;
-                channel.limit = std::stoi(it->params[2]);
-                std::string rq = ":" + server_name + " MODE " + channelName + " +l " + std::to_string(channel.limit) + "\r\n";
-                channel.broadcast(rq);
-            }
-            else
-            {
+                channel.limit = std::stoi(param);
+            } else {
                 channel.mode.l = false;
                 channel.limit = 0;
-                std::string rq = ":" + server_name + " MODE " + channelName + " -l\r\n";
-                channel.broadcast(rq);
             }
-        }
+            break;
+        default:
+            return;
     }
+    std::string rq = ":" + server_name + " MODE " + channel.name + " " + mode + (param.empty() ? "" : " ") + param + "\r\n";
+    channel.broadcast(rq);
 }
+
 
 /// @brief gere la commade Cap, si le client demande les LS, on lui repond
 /// @param it (iterator of the command)
@@ -377,6 +324,7 @@ void Server::joinCommand(std::vector<commands>::iterator &it, Client &client)
 
             new_channel.clients.push_back(&client);
             new_channel.topic = DEFAULT_TOPIC;
+            new_channel.name = channel;
             channels[channel] = new_channel;
             std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
             if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)

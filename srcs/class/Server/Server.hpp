@@ -37,6 +37,7 @@ struct s_channel
     std::string topic;
     std::string password;
     unsigned int limit;
+    std::string name;
 
     // func
     void kickClient(Client &target);
@@ -86,7 +87,7 @@ public:
     int closeSocket();
     void Log(char buffer[1024]);
     bool is_channel_by_name(std::string &channelName);
-
+    void applyChannelMode(s_channel &channel, Client &client, const std::string &mode, const std::string &param = "");
 
     // over one client ( u need to use acceptSocket() before
     int loopSocket();
