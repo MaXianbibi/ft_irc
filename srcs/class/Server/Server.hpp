@@ -31,6 +31,9 @@ struct s_channel
     
 
     std::vector<Client*> clients;
+    std::set<Client *> inviteList;
+
+
     std::string topic;
     std::string password;
 
@@ -40,7 +43,6 @@ struct s_channel
     void broadcast(std::string message);
     Client* get_client_by_nick(std::string nickname);
     bool is_client_in_channel(Client &client);
-    
 }; typedef struct s_channel s_channel;
 
 class Server
@@ -111,10 +113,14 @@ public:
 
 
     // send error
-    void send_error_403(Client &client, std::string &channelName);
-    void send_error_461(Client &client);
-    void send_error_482(Client &client, std::string &channelName);
-    void send_error_442(Client &client, std::string &channelName);
+    void send_error_401(Client &client, std::string &targetName);  // No such nick
+    void send_error_403(Client &client, std::string &channelName); // No such channel
+    void send_error_442(Client &client, std::string &channelName); // You're not on that channel 
+    void send_error_461(Client &client);                           // Not enough parameters
+    void send_error_482(Client &client, std::string &channelName); // You're not channel operator
+
+
+
     // over multiple clients
     int selectInit();
     int selectLoop();
@@ -128,7 +134,9 @@ public:
     int get_client_fd() const;
     std::map<int, Client> get_clients() const;
     std::map<std::string, Client*> get_clients_by_nick() const;
+
     Client& get_client_by_nick(std::string nickname);
+    Client *get_client_by_nick_ptr(std::string nickname);
 
     // Setter
     void set_sockfd(int sockfd);

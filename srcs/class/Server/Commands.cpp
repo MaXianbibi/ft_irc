@@ -440,7 +440,7 @@ bool Server::is_channel_by_name(std::string &channelName)
 {
     if (channelName[0] != '#')
         channelName = "#" + channelName;
-        
+
     if (channels.find(channelName) == channels.end())
         return FAILURE;
     return SUCCESS;
@@ -455,10 +455,48 @@ void Server::InviteCommand(std::vector<commands>::iterator &it, Client &client)
         return ;
     }
 
-    std::string channelName = it->params[0];    
+    std::string channelName = it->params[1];    
     if(is_channel_by_name(channelName) == FAILURE)
     {
         send_error_403(client, channelName);
         return ;
     }
+
+    s_channel &channel = channels.at(channelName);
+    if (!channel.is_client_in_channel(client))
+    {
+        send_error_442(client, channelName);
+        return;
+    }
+
+    Client *target = get_client_by_nick_ptr(it->params[0]);
+    if (target == NULL)
+    {
+        send_error_401(client, channelName);
+        return;
+    }
+
+
+    if (channel.is_client_in_channel(*target))
+    {
+        std::string rq = ":" + server_name + " 443 " + client.get_nickname() + " " + target->get_nickname() + " " + channelName + " :is already on channel\r\n";
+        if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+            fatal("Error on send");
+        return;
+    }
+
+    // send invite : target
+    // :<expéditeur>!~<username>@<host> INVITE <nickname> :<channel>
+
+    std::string rq = ":" + client.get_nickname() + "!~" + client.get_username() + "@" + client.get_ip() + " INVITE " + target->get_nickname() + " :" + channelName + "\r\n";
+    if (send(target->get_socket(), rq.c_str(), rq.size(), 0) < 0)
+        fatal("Error on send");
+    
+    // send : expéditeur
+    // :<nom_serveur> 341 <expéditeur> <nickname> <channel>
+
+    rq = ":" + server_name + " 341 " + client.get_nickname() + " " + target->get_nickname() + " " + channelName + "\r\n";
+    if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+        fatal("Error on send");
+    channel.inviteList.insert(target);
 }

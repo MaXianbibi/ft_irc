@@ -314,6 +314,9 @@ int Server::get_client_fd() const { return client_fd; }
 std::map<int, Client> Server::get_clients() const { return clients; }
 std::map<std::string, Client *> Server::get_clients_by_nick() const { return clients_by_nick; }
 
+/// @brief Retourne une référence à l'objet Client trouvé.
+/// @param nickname 
+/// @return 
 Client &Server::get_client_by_nick(std::string nickname)
 {
     std::map<std::string, Client *>::iterator it = clients_by_nick.find(nickname);
@@ -323,10 +326,20 @@ Client &Server::get_client_by_nick(std::string nickname)
     }
     else
     {
-        std::cout << "0;31"
-                  << "Client not found : " << nickname << std::endl;
         throw std::runtime_error("Client not found");
     }
+}
+
+
+/// @brief get a client by nickname on the server
+/// @param nickname 
+/// @return client ptr if found, NULL otherwise
+Client *Server::get_client_by_nick_ptr(std::string nickname)
+{
+    std::map<std::string, Client *>::iterator it = clients_by_nick.find(nickname);
+    if (it != clients_by_nick.end())
+        return it->second;
+    return NULL;
 }
 
 

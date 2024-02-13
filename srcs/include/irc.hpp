@@ -20,6 +20,7 @@
 #include <iterator>
 #include <sstream>
 #include <fstream>
+#include <set>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
