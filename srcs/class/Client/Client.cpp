@@ -3,7 +3,18 @@
 Client::Client()
 {
     _first_time_connected = true;
-    mode.o = false;
+
+    memset(&mode, 0, sizeof(mode));
+    
+    _nickname = "";
+    _username = "";
+    _realname = "";
+    _hostname = "";
+    _socket = 0;
+    _ip = "";
+    _port = 0;
+    _unused = "";
+
 }
 
 Client::~Client()

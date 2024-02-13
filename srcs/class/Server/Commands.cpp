@@ -1,21 +1,40 @@
 #include "Server.hpp"
 
+
+std::string generateRandomNumbers() {
+    std::string result;
+    for (int i = 0; i < 10; i++) {
+        int randomNumber = rand() % 10;
+        std::stringstream ss;
+        ss << randomNumber;
+        result += ss.str();
+    }
+    return result;
+}
+
+
 /// @brief Change ou init le nickname du Client
 /// @param client info client
 /// @param it iterator of the command
 void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
 {
+    std::string server_name = SERVER_NAME;
     if (it->params.size() == 0)
+    {
+        send_error_461(client);
         return;
-    if (it->params[0].empty())
-        return;
+    }
     // new client
     if (client.get_nickname().empty())
     {
         if (clients_by_nick.find(it->params[0]) != clients_by_nick.end())
         {
-            std::string rp = "433 " + it->params[0] + " :Nickname is already in use\r\n";
-            send(client.get_socket(), rp.c_str(), rp.size(), 0);
+            client.set_nickname(generateRandomNumbers());
+            // :server 433 * <nick> :Nickname is already in use
+            std::string rq = ":" + server_name + " 433 *" + it->params[0] + " :" + client.get_nickname() + "\r\n";
+            if ( send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+                perror("ERROR on send");
+            clients_by_nick[client.get_nickname()] = &client;
         }
         else
         {
@@ -33,6 +52,11 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     }
     else
     {
+        
+        // :<ancienNick>!~username@host NICK :<nouveauNick>
+        std::string rq = ":" + client.get_nickname() + "!~" + client.get_username() + "@" + client.get_ip() + " NICK :" + it->params[0] + "\r\n";
+        client.sendMessage(rq);
+        
         clients_by_nick.erase(client.get_nickname());
         clients_by_nick[it->params[0]] = &client;
         client.set_nickname(it->params[0]);
@@ -91,6 +115,11 @@ void Server::PingCommand(std::vector<commands>::iterator &it, int &i)
 /// @param i client's socket fd
 void Server::FirstTimeConnectionMsg(Client &client, int &i)
 {
+    if (client.get_nickname().empty())
+        return;
+    if (client.get_first_time_connected() == false)
+        return;
+    
     std::string serverName(SERVER_NAME);
     std::string msgWelcome(":" + serverName + " 001 " + client.get_nickname() + " :Welcome to the IRC Network, " + client.get_nickname() + "!" + client.get_username() + "@" + client.get_ip() + "\r\n");
     send(i, msgWelcome.c_str(), msgWelcome.size(), 0);
@@ -104,6 +133,7 @@ void Server::FirstTimeConnectionMsg(Client &client, int &i)
     msgWelcome = ":" + serverName + " 004 " + client.get_nickname() + " :" + serverName + " 0.1 " + "o" + " " + "itkol" + "\r\n";
     send(i, msgWelcome.c_str(), msgWelcome.size(), 0);
     client.set_first_time_connected(false);
+
 }
 
 /// @brief Repond par les informations du client visé
@@ -136,7 +166,7 @@ void Server::WhoisCommand(std::vector<commands>::iterator &it, Client &client, i
 /// @param name nom du channel
 /// @return vrai si c'est un channel, faux sinon
 bool isChannelName(std::string &name) {
-    return name[0] == '#';
+    return (name[0] == '#');
 }
 
 /// @brief gere la command mode selon si c'est un channel ou un client
@@ -180,7 +210,7 @@ void Server::ModeCommand(std::vector<commands>::iterator &it, Client &client) {
 /// @param client le client
 /// @param mode le mode souhaiter
 /// @param param le 3eme parametre de la commande mode ( target, limit, password )
-void Server::applyChannelMode(s_channel &channel, Client &client, const std::string &mode, const std::string &param = "") {
+void Server::applyChannelMode(s_channel &channel, Client &client, const std::string &mode, const std::string &param) {
     std::string server_name = SERVER_NAME;
     bool modeSet = mode[0] == '+';
     char modeChar = mode[1];
@@ -214,7 +244,7 @@ void Server::applyChannelMode(s_channel &channel, Client &client, const std::str
         case 'l': // Limite d'utilisateurs
             if (modeSet) {
                 channel.mode.l = true;
-                channel.limit = std::stoi(param);
+                channel.limit = std::atoi(param.c_str());
             } else {
                 channel.mode.l = false;
                 channel.limit = 0;
@@ -366,8 +396,10 @@ void Server::PrivmsgCommand(std::vector<commands>::iterator &it, Client &client)
         std::vector<Client *>::iterator it_client = clients.begin();
         for (; it_client != clients.end(); ++it_client)
         {
+            std::cout << client.get_nickname() << std::endl;
             if ((*it_client)->get_socket() == client.get_socket())
                 continue;
+            
             std::string rq = ":" + client.get_nickname() + "!" + client.get_username() + "@" + client.get_ip() + " PRIVMSG " + target_name + " :" + it->params[1] + "\r\n";
             if (send((*it_client)->get_socket(), rq.c_str(), rq.size(), 0) < 0)
                 fatal("Error on send");
