@@ -236,6 +236,9 @@ void Server::newMessage(int &i)
                 PrivmsgCommand(it, client);
             else if (it->command == "KICK")
                 KickCommand(it, client);
+            else if (it->command == "TOPIC")
+                TopicCommand(it, client);
+            
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);

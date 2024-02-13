@@ -10,6 +10,7 @@
 
 #define BUF_SIZE 1024
 #define SERVER_NAME "KanyesFanClub"
+#define DEFAULT_TOPIC "What do you think of Vulture ?"
 
 #define __CREATION_DATE__ "2024-02-06"
 #define __CREATION_TIME__ "12:00:00"
@@ -103,6 +104,9 @@ public:
     void PrivmsgCommand(std::vector<commands>::iterator &it, Client &client);
     void joinCommand(std::vector<commands>::iterator &it, Client &client);
     void WhoisCommand(std::vector<commands>::iterator &it, Client &client, int &i);
+    void TopicCommand(std::vector<commands>::iterator &it, Client &client);
+
+    bool is_channel_by_name(std::string &channelName);
 
     // over multiple clients
     int selectInit();

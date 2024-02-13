@@ -9,7 +9,6 @@ void s_channel::broadcast(std::string message)
     
 }
 
-
 /// @brief  kick a client from the channel ( doesn't send a message to the client )
 /// @param target target to kick
 void s_channel::kickClient(Client &target)
@@ -24,7 +23,6 @@ void s_channel::kickClient(Client &target)
         }
     }
 }
-
 
 /// @brief  get a client by his nickname
 /// @param nickname 

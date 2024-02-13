@@ -1,6 +1,5 @@
 #include "Server.hpp"
 
-
 /// @brief Change ou init le nickname du Client
 /// @param client info client
 /// @param it iterator of the command
@@ -248,10 +247,12 @@ void Server::joinCommand(std::vector<commands>::iterator &it, Client &client)
         if (channels.find(channel) != channels.end())
         {
             channels[channel].clients.push_back(&client);
+            std::string topic = channels[channel].topic;
             std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
             if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
                 fatal("Error on send");
-            rq = ":" + serveur_name + " 332 " + client.get_nickname() + " " + channel + " :Discussion générale\r\n";
+            rq = ":" + serveur_name + " 332 " + client.get_nickname() + " " + channel + " :" + topic + "\r\n";
+            std::cout << "DEBUG: " << rq << std::endl;
             if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
                 fatal("Error on send");
             std::string userList = "";
@@ -274,6 +275,7 @@ void Server::joinCommand(std::vector<commands>::iterator &it, Client &client)
             std::cout << "Channel created" << std::endl;
             s_channel new_channel;
             new_channel.clients.push_back(&client);
+            new_channel.topic = DEFAULT_TOPIC;
             channels[channel] = new_channel;
             std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
             if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
@@ -286,7 +288,6 @@ void Server::joinCommand(std::vector<commands>::iterator &it, Client &client)
                 fatal("Error on send");
         }
 }
-
 
 /// @brief gere la command PRIVMSG, sur un channel ou en privé
 /// @param it iterator sur la commande
@@ -361,9 +362,7 @@ void Server::KickCommand(std::vector<commands>::iterator &it, Client &client)
         }
 
         std::cout << client.isOperator() << std::endl;
-
         s_channel &channel = channels.at(channelName);
-
         Client *target = channel.get_client_by_nick(it->params[1]);
         if (target == NULL)
         {
@@ -383,4 +382,38 @@ void Server::KickCommand(std::vector<commands>::iterator &it, Client &client)
             channel.broadcast(":" + client.get_nickname() + " KICK " + channelName + " " + target->get_nickname() + " :Kicked by " + client.get_nickname() + "\r\n");
             (target)->sendMessage(":" + server_name + " KICK " + channelName + " " + target->get_nickname() + " :Kicked by " + client.get_nickname() + "\r\n");
         }
+}
+
+void Server::TopicCommand(std::vector<commands>::iterator &it, Client &client)
+{
+    std::string server_name = SERVER_NAME;
+    if (it->params.size() == 0)
+    {
+        std::string rq = ":" + server_name + " 461 " + client.get_nickname() + " TOPIC :Not enough parameters\r\n";
+        if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+            fatal("Error on send");
+        return;
+    }
+
+    std::string channelName = it->params[0];
+    bool retFlag;
+    if(is_channel_by_name(channelName) == FAILURE)
+    {
+        std::string rq = ":" + server_name + " 403 " + client.get_nickname() + " " + channelName + " :No such channel\r\n";
+        if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+            fatal("Error on send");
+        return;
+    }
+
+    s_channel &channel = channels.at(channelName);
+    
+
+
+}
+
+bool Server::is_channel_by_name(std::string &channelName)
+{
+    if (channels.find(channelName) == channels.end())
+        return FAILURE;
+    return SUCCESS;
 }
