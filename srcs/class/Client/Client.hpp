@@ -33,7 +33,7 @@ private:
         std::string _hostname;     // ?? jsp si on va l'utiliser
 
 
-
+    std::string join_channel;
     // command & command list
     std::string buffer_command;
     std::vector<std::string> command_list;
@@ -72,7 +72,7 @@ private:
     int get_port() const;
     std::string get_unused() const;
     std::vector<commands> get_commands_parsed() const;
-    
+    std::string get_join_channel() const;
 
     // setter
     void set_nickname(std::string nickname);
@@ -85,7 +85,7 @@ private:
     void set_port(int port);
     void set_unused(std::string unused);
     void set_first_time_connected(bool first_time_connected);
-
+    void set_join_channel(std::string channel);
 
 };
 

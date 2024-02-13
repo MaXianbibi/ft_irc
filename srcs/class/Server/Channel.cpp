@@ -4,7 +4,7 @@
 /// @param message Message to broadcast
 void s_channel::broadcast(std::string message)
 {
-    for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); it++)
+    for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); ++it)
             (*it)->sendMessage(message);
     
 }
@@ -49,4 +49,26 @@ bool s_channel::is_client_in_channel(Client &client)
             return true;
     }
     return false;
+}
+
+/// @brief remove a client from the channel
+/// @param client 
+void s_channel::remove_client(Client &client)
+{
+    std::vector<Client *>::iterator it = clients.begin();
+    for (; it != clients.end(); ++it)
+    {
+        if ((*it)->get_nickname() == client.get_nickname())
+        {
+            clients.erase(it);
+            break;
+        }
+    }
+}
+
+/// @brief add a client to the channel
+/// @param client 
+void s_channel::add_client(Client &client)
+{
+    clients.push_back(&client);
 }

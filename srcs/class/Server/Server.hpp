@@ -44,6 +44,10 @@ struct s_channel
     void broadcast(std::string message);
     Client* get_client_by_nick(std::string nickname);
     bool is_client_in_channel(Client &client);
+
+    // client gestion
+    void remove_client(Client &client);
+    void add_client(Client &client);
 }; typedef struct s_channel s_channel;
 
 class Server
