@@ -440,6 +440,13 @@ void Server::InviteCommand(std::vector<commands>::iterator &it, Client &client)
         return;
     }
 
+    if (!client.isOperator())
+    {
+        send_error_482(client, channelName);
+        return;
+    }
+        
+
     Client *target = get_client_by_nick_ptr(it->params[0]);
     if (target == NULL)
     {
