@@ -9,7 +9,7 @@
 #define DEFAULT_BACKLOG 50
 
 #define BUF_SIZE 1024
-#define SERVER_NAME "KanyesFanClub"
+#define SERVER_NAME "OldKanyesFanClub"
 #define DEFAULT_TOPIC "What do you think of Vulture ?"
 
 #define __CREATION_DATE__ "2024-02-06"

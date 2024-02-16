@@ -233,9 +233,9 @@ void Server::newMessage(int &i)
                 ModeCommand(it, client);
             else if (it->command == "WHOIS")
                 WhoisCommand(it, client, i);
-            else if (it->command == "JOIN") // need to be authenticated
+            else if (it->command == "JOIN")
                 joinCommand(it, client);
-            else if (it->command == "PRIVMSG") // need to be authenticated except for the server
+            else if (it->command == "PRIVMSG") 
                 PrivmsgCommand(it, client);
             else if (it->command == "KICK")
                 KickCommand(it, client);
@@ -249,6 +249,8 @@ void Server::newMessage(int &i)
                 if (client.get_authentified() == false)
                     return ;
             }
+            else
+                client.sendMessage("421 " + client.get_nickname() + " :Unknown command\r\n");
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);
