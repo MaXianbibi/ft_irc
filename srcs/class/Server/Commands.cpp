@@ -52,22 +52,15 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     }
     else
     {
-
         // :<ancienNick>!~username@host NICK :<nouveauNick>
-
         std::string rq = ":" + client.get_nickname() + "!~" + client.get_username() + "@" + client.get_ip() + " NICK :" + it->params[0] + "\r\n";
         clients_by_nick.erase(client.get_nickname());
         clients_by_nick[it->params[0]] = &client;
         client.set_nickname(it->params[0]);
 
-
-
         client.sendMessage(rq);
-        // if (!client.get_join_channel().empty()) // cela ne marche pas pour les channels prescedemment rejoint, peut etre le client IRSSI ?
-        // {
-        //     s_channel &channel = channels.at(client.get_join_channel());            
-        //     channel.broadcast(rq);
-        // }
+        if (!client.get_join_channel().empty()) // cela ne marche pas pour les channels prescedemment rejoint, peut etre le client IRSSI ?
+            channels.at(client.get_join_channel()).broadcast(rq, client);
     }
 }
 
@@ -177,20 +170,21 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     }
 
     /// @brief gere la command mode selon si c'est un channel ou un client
-    /// @bug defois le client n'est pas trouvé
     /// @param it
     /// @param i
     void Server::ModeCommand(std::vector<commands>::iterator & it, Client & client)
     {
-        if (it->params.size() < 2)
+        if (it->params.size() < 1)
         {
             send_error_461(client);
             return;
         }
 
         std::string target = it->params[0];
-        std::string mode = it->params[1];
+
+        std::string mode = it->params.size() > 1 ? it->params[1] : "";
         std::string param = it->params.size() > 2 ? it->params[2] : "";
+
 
         if (isChannelName(target))
         {
@@ -207,6 +201,17 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
                 send_error_442(client, channelName);
                 return;
             }
+
+            if (it->params.size() == 1)
+            {
+                // :server 324 <nickname> #nomducanal <modes actuels> [paramètres de mode]
+                std::string server_name = SERVER_NAME;
+                std::string rq = ":" + server_name + " 324 " + client.get_nickname() + " " + channelName + " " + channel.get_mode_string() + "\r\n";
+                client.sendMessage(rq);
+                return;
+            }
+
+
             if (!client.isOperator())
             {
                 send_error_482(client, channelName);

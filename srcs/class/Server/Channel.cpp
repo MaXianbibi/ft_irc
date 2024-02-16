@@ -9,6 +9,19 @@ void s_channel::broadcast(std::string message)
     
 }
 
+/// @brief Broadcast to every client in the channel except the client
+/// @param message 
+/// @param client 
+void s_channel::broadcast(std::string message, Client & client)
+{
+    for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); ++it)
+    {
+        if ((*it) != &client)
+            (*it)->sendMessage(message);
+    }
+    
+}
+
 /// @brief  kick a client from the channel ( doesn't send a message to the client )
 /// @param target target to kick
 void s_channel::kickClient(Client &target)
@@ -71,4 +84,20 @@ void s_channel::remove_client(Client &client)
 void s_channel::add_client(Client &client)
 {
     clients.push_back(&client);
+}
+
+std::string s_channel::get_mode_string()
+{
+    std::string mode = "+";
+    if (this->mode.i)
+        mode += "i";
+    if (this->mode.t)
+        mode += "t";
+    if (this->mode.k)
+        mode += "k";
+    if (this->mode.o)
+        mode += "o";
+    if (this->mode.l)
+        mode += "l";
+    return mode;
 }

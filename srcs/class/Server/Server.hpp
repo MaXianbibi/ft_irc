@@ -42,8 +42,11 @@ struct s_channel
     // func
     void kickClient(Client &target);
     void broadcast(std::string message);
+    void broadcast(std::string message, Client &client);
     Client* get_client_by_nick(std::string nickname);
     bool is_client_in_channel(Client &client);
+
+    std::string get_mode_string();
 
     // client gestion
     void remove_client(Client &client);

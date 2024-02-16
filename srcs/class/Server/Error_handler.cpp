@@ -16,7 +16,7 @@ void Server::send_error_403(Client &client, std::string &channelName)
 void Server::send_error_461(Client &client)
 {
     std::string server_name = SERVER_NAME;
-    std::string rq = ":" + server_name + " 461 " + client.get_nickname() + " PRIVMSG :Not enough parameters\r\n";
+    std::string rq = ":" + server_name + " 461 " + client.get_nickname() + " Error :Not enough parameters\r\n";
     if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
         fatal("Error on send");
 }
