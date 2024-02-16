@@ -12,7 +12,7 @@ password : Le mot de passe permettant de s’identifier auprès de votre serveur
 
 # faculties : 
 
-Gestion de multiples connexions simultanées sur le même port.
+Gestion de multiples connexions simultanées sur le même port. \n
 Utilisation d'une seule instruction select pour la multiplexation des E/S.
 Le client IRC Irssi est utilisé comme référence pour le développement et les tests.
 Connexion TCP/IP v4.
@@ -23,9 +23,9 @@ Gestion correcte des canaux.
 
 
 # TODO         
-changer le mode des fctnl
-changer le mode afficher par un user lorsquil join
-Tester
+changer le mode des fctnl \n
+changer le mode afficher par un user lorsquil join \n
+Tester \n
 
 
 
