@@ -75,3 +75,10 @@ void Server::send_error_471(Client &client, std::string &channelName)
     std::string rq = ":" + server_name + " 471 " + client.get_nickname() + " " + channelName + " :Cannot join channel (+l)\r\n";
     client.sendMessage(rq);
 }
+
+void Server::send_error_451(Client &client)
+{
+    std::string server_name = SERVER_NAME;
+    std::string rq = ":" + server_name + " 451 " + client.get_nickname() + " :Incorrect password\r\n";
+    client.sendMessage(rq);
+}

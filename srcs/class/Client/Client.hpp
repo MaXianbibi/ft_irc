@@ -41,6 +41,8 @@ private:
 
     bool _first_time_connected;
 
+    bool authentified;
+
     public:
     Client();
     ~Client();
@@ -73,6 +75,7 @@ private:
     std::string get_unused() const;
     std::vector<commands> get_commands_parsed() const;
     std::string get_join_channel() const;
+    bool get_authentified() const;
 
     // setter
     void set_nickname(std::string nickname);
@@ -86,6 +89,7 @@ private:
     void set_unused(std::string unused);
     void set_first_time_connected(bool first_time_connected);
     void set_join_channel(std::string channel);
+    void set_authentified(bool authentified);
 
 };
 

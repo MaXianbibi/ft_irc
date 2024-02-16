@@ -98,6 +98,7 @@ public:
     void Log(char buffer[1024]);
     bool is_channel_by_name(std::string &channelName);
     void applyChannelMode(s_channel &channel, Client &client, const std::string &mode, const std::string &param = "");
+    void disconnect_client(Client &client);
 
     // over one client ( u need to use acceptSocket() before
     int loopSocket();
@@ -121,7 +122,7 @@ public:
     void TopicCommand(std::vector<commands>::iterator &it, Client &client);
     void KickCommand(std::vector<commands>::iterator &it, Client &client);
     void InviteCommand(std::vector<commands>::iterator &it, Client &client);
-
+    void PassCommand(std::vector<commands>::iterator &it, Client &client);
 
     // send error
     void send_error_401(Client &client, std::string &targetName);  // No such nick
@@ -129,7 +130,7 @@ public:
     void send_error_442(Client &client, std::string &channelName); // You're not on that channel 
     void send_error_461(Client &client);                           // Not enough parameters
     
-    
+    void send_error_451(Client &client);                            // You have not registered
     void send_error_461(Client &client, std::string commands_name); // Not enough parameters (with command name)
     void send_error_471(Client &client, std::string &channelName); // Cannot join channel (+l
     void send_error_473(Client &client, std::string &channelName); // Invite only channel

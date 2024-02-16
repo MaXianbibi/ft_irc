@@ -115,10 +115,14 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     /// @param i client's socket fd
     void Server::FirstTimeConnectionMsg(Client & client, int &i)
     {
+        if (client.get_authentified() == false)
+        { send_error_451(client); disconnect_client(client); return ;}
         if (client.get_nickname().empty())
             return;
         if (client.get_first_time_connected() == false)
             return;
+        
+        client.sendMessage("NOTICE * :Ce serveur nécessite un mot de passe. /msg <NAME OF THE SERVER> <PASSWORD> to authentified.\r\n");
 
         std::string serverName(SERVER_NAME);
         std::string msgWelcome(":" + serverName + " 001 " + client.get_nickname() + " :Welcome to the IRC Network, " + client.get_nickname() + "!" + client.get_username() + "@" + client.get_ip() + "\r\n");
@@ -286,13 +290,15 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     /// @brief gere la commade Cap, si le client demande les LS, on lui repond
     /// @param it (iterator of the command)
     /// @param i (client socket fd)
-    void Server::CapCommand(std::vector<commands>::iterator & it, int &i)
+    void Server::CapCommand(std::vector<commands>::iterator &it, int &sockfd)
     {
         if (!it->params.empty() && it->params[0] == "LS")
         {
-            std::string rp = ":" + std::string(SERVER_NAME) + " CAP * LS :\r\n";
-            if (send(i, rp.c_str(), rp.size(), 0) < 0)
+            std::string rp = ":" + std::string(SERVER_NAME) + " CAP * LS :PLAIN\r\n"; // 'auth-pass' est un exemple de nom de capacité personnalisée
+            if (send(sockfd, rp.c_str(), rp.size(), 0) < 0)
+            {
                 perror("ERROR on send");
+            }
         }
     }
 
@@ -336,7 +342,7 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     void Server::joinCommand(std::vector<commands>::iterator & it, Client & client)
     {
         if (it->params.size() == 0) { send_error_461(client, "JOIN"); return; }
-
+        if (client.get_authentified() == false) { send_error_451(client); return; }
 
         std::string serveur_name = SERVER_NAME;
         std::string channel = it->params[0];
@@ -425,6 +431,9 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
                     fatal("Error on send");
                 return;
             }
+
+            if (channels[target_name].is_client_in_channel(client) == false)
+                {send_error_442(client, target_name); return ;}
 
             std::vector<Client *> clients = channels[target_name].clients;
             std::vector<Client *>::iterator it_client = clients.begin();
@@ -613,4 +622,14 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
         if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
             fatal("Error on send");
         channel.inviteList.insert(target);
+    }
+
+    void Server::PassCommand(std::vector<commands>::iterator & it, Client & client)
+    {
+        if (it->params.size() == 1 && it->params[0] == this->get_keypass())
+            client.set_authentified(true);
+        else {
+            send_error_451(client);
+            disconnect_client(client);
+        }
     }

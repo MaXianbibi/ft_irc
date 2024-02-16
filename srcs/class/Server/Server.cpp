@@ -5,6 +5,9 @@ Server::Server()
     std::cout << "Server created" << std::endl;
     // set the port to 0, if the user doesn't specify a port, the default port will be used in the bindSocket function
     port = 0;
+
+    keypass = "1234";
+
 }
 
 Server::~Server() {}
@@ -230,9 +233,9 @@ void Server::newMessage(int &i)
                 ModeCommand(it, client);
             else if (it->command == "WHOIS")
                 WhoisCommand(it, client, i);
-            else if (it->command == "JOIN")
+            else if (it->command == "JOIN") // need to be authenticated
                 joinCommand(it, client);
-            else if (it->command == "PRIVMSG")
+            else if (it->command == "PRIVMSG") // need to be authenticated except for the server
                 PrivmsgCommand(it, client);
             else if (it->command == "KICK")
                 KickCommand(it, client);
@@ -240,6 +243,12 @@ void Server::newMessage(int &i)
                 TopicCommand(it, client);
             else if (it->command == "INVITE")
                 InviteCommand(it, client);
+            else if (it->command == "PASS")
+            {
+                PassCommand(it, client);
+                if (client.get_authentified() == false)
+                    return ;
+            }
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);
@@ -334,6 +343,18 @@ Client *Server::get_client_by_nick_ptr(std::string nickname)
     if (it != clients_by_nick.end())
         return it->second;
     return NULL;
+}
+
+void Server::disconnect_client(Client &client)
+{
+    std::string server_name = SERVER_NAME;
+    std::string rq = ":" + server_name + " QUIT :Client disconnected\r\n";
+    if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+        fatal("Error on send");
+    FD_CLR(client.get_socket(), &master); // Remove from master set
+    clients_by_nick.erase(client.get_nickname());
+    clients.erase(client.get_socket()); // Remove from clients map
+    close(client.get_socket());         // Bye!
 }
 
 // getter
