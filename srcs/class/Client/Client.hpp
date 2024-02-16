@@ -42,6 +42,7 @@ private:
     bool _first_time_connected;
 
     bool authentified;
+    bool has_joinded_channel;
 
     public:
     Client();
@@ -77,6 +78,8 @@ private:
     std::string get_join_channel() const;
     bool get_authentified() const;
 
+    bool is_joinned_channel() const;
+
     // setter
     void set_nickname(std::string nickname);
     void set_username(std::string username);
@@ -90,6 +93,7 @@ private:
     void set_first_time_connected(bool first_time_connected);
     void set_join_channel(std::string channel);
     void set_authentified(bool authentified);
+    void set_is_joinned_channel(bool has_joinded_channel);
 
 };
 

@@ -39,6 +39,8 @@ struct s_channel
     unsigned int limit;
     std::string name;
 
+
+
     // func
     void kickClient(Client &target);
     void broadcast(std::string message);
@@ -128,14 +130,18 @@ public:
     void send_error_401(Client &client, std::string &targetName);  // No such nick
     void send_error_403(Client &client, std::string &channelName); // No such channel
     void send_error_442(Client &client, std::string &channelName); // You're not on that channel 
+
+    # define NOT_ENOUGH_PARAM(X, Y) send_error_461(X, Y)
     void send_error_461(Client &client);                           // Not enough parameters
-    
     void send_error_451(Client &client);                            // You have not registered
     void send_error_461(Client &client, std::string commands_name); // Not enough parameters (with command name)
     void send_error_471(Client &client, std::string &channelName); // Cannot join channel (+l
     void send_error_473(Client &client, std::string &channelName); // Invite only channel
     void send_error_482(Client &client, std::string &channelName); // You're not channel operator
 
+
+    # define BAD_CHANNEL_KEY(X, Y) send_error_475(X, Y)
+    void send_error_475(Client &client, std::string &channelName); // Bad channel key
 
 
     // over multiple clients

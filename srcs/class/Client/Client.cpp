@@ -18,6 +18,7 @@ Client::Client()
     join_channel = "";
 
     authentified = false;
+    has_joinded_channel = false;
 }
 
 Client::~Client()
@@ -129,6 +130,7 @@ std::string Client::get_unused() const { return _unused; }
 bool Client::get_first_time_connected() const { return _first_time_connected; }
 std::string Client::get_join_channel() const { return join_channel; }
 bool Client::get_authentified() const { return authentified; }
+bool Client::is_joinned_channel() const { return has_joinded_channel; }
 
 // setter
 void Client::set_nickname(std::string nickname) { _nickname = nickname; }
@@ -143,5 +145,5 @@ void Client::set_join_channel(std::string channel) { join_channel = channel; }
 
 void Client::set_unused(std::string unused) { _unused = unused; }
 void Client::set_first_time_connected(bool first_time_connected) { _first_time_connected = first_time_connected; }
-
 void Client::set_authentified(bool authentified) { this->authentified = authentified; }
+void Client::set_is_joinned_channel(bool has_joinded_channel) { this->has_joinded_channel = has_joinded_channel; }

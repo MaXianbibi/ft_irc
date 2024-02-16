@@ -121,8 +121,6 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
             return;
         if (client.get_first_time_connected() == false)
             return;
-        
-        client.sendMessage("NOTICE * :Ce serveur nécessite un mot de passe. /msg <NAME OF THE SERVER> <PASSWORD> to authentified.\r\n");
 
         std::string serverName(SERVER_NAME);
         std::string msgWelcome(":" + serverName + " 001 " + client.get_nickname() + " :Welcome to the IRC Network, " + client.get_nickname() + "!" + client.get_username() + "@" + client.get_ip() + "\r\n");
@@ -357,6 +355,19 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
                 if (channels[channel].clients.size() >= channels[channel].limit)
                     {send_error_471(client, channel); return;}
 
+            if (channels[channel].mode.k)
+            {
+                if (it->params.size() < 2)
+                    {NOT_ENOUGH_PARAM(client, "JOIN"); return ;}
+                if (it->params[1] != channels[channel].password)
+                    {BAD_CHANNEL_KEY(client, channel); return;}
+            }
+
+
+            if (client.is_joinned_channel())
+                {client.sendMessage("NOTICE YOU CANNOT JOIN MULTIPLE CHANNELS\r\n");return ;}
+
+
             channels[channel].clients.push_back(&client);
             std::string topic = channels[channel].topic;
             std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
@@ -382,17 +393,20 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
                 fatal("Error on send");
 
             client.set_join_channel(channel);
+            client.set_is_joinned_channel(true);
         }
         else
         {
+            if (client.is_joinned_channel())
+                {client.sendMessage("NOTICE YOU CANNOT JOIN MULTIPLE CHANNELS\r\n");return ;}
+
             std::cout << "Channel created" << std::endl;
             s_channel new_channel;
-
             memset(&new_channel.mode, 0, sizeof(new_channel.mode));
-
             new_channel.clients.push_back(&client);
             new_channel.topic = DEFAULT_TOPIC;
             new_channel.name = channel;
+            new_channel.password = "";
             channels[channel] = new_channel;
             std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
             if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
@@ -405,6 +419,7 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
                 fatal("Error on send");
 
             client.set_join_channel(channel);
+            client.set_is_joinned_channel(true);
         }
     }
 

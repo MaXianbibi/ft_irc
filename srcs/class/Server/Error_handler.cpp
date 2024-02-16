@@ -21,6 +21,9 @@ void Server::send_error_461(Client &client)
         fatal("Error on send");
 }
 
+/// @brief  not enough parameters
+/// @param client 
+/// @param commands_name 
 void Server::send_error_461(Client &client, std::string commands_name)
 {
     std::string server_name = SERVER_NAME;
@@ -62,6 +65,9 @@ void Server::send_error_401(Client &client, std::string &targetName)
         fatal("Error on send");
 }
 
+/// @brief  Invite only channel
+/// @param client 
+/// @param channelName 
 void Server::send_error_473(Client &client, std::string &channelName)
 {
     std::string server_name = SERVER_NAME;
@@ -69,6 +75,9 @@ void Server::send_error_473(Client &client, std::string &channelName)
     client.sendMessage(rq);
 }
 
+/// @brief Cannot join channel (+l)
+/// @param client 
+/// @param channelName 
 void Server::send_error_471(Client &client, std::string &channelName)
 {
     std::string server_name = SERVER_NAME;
@@ -76,9 +85,18 @@ void Server::send_error_471(Client &client, std::string &channelName)
     client.sendMessage(rq);
 }
 
+/// @brief incorrect password
+/// @param client 
 void Server::send_error_451(Client &client)
 {
     std::string server_name = SERVER_NAME;
     std::string rq = ":" + server_name + " 451 " + client.get_nickname() + " :Incorrect password\r\n";
+    client.sendMessage(rq);
+}
+
+void Server::send_error_475(Client &client, std::string &channelName)
+{
+    std::string server_name = SERVER_NAME;
+    std::string rq = ":" + server_name + " 475 " + client.get_nickname() + " " + channelName + " :Bad channel key\r\n";
     client.sendMessage(rq);
 }
