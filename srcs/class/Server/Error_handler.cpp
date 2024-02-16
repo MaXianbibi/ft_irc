@@ -21,6 +21,14 @@ void Server::send_error_461(Client &client)
         fatal("Error on send");
 }
 
+void Server::send_error_461(Client &client, std::string commands_name)
+{
+    std::string server_name = SERVER_NAME;
+    std::string rq = ":" + server_name + " 461 " + client.get_nickname() + " " + commands_name + " :Not enough parameters\r\n";
+    if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
+        fatal("Error on send");
+}
+
 /// @brief send a 482 error to the client : 482 = You're not channel operator
 /// @param client
 /// @param channelName
@@ -52,4 +60,18 @@ void Server::send_error_401(Client &client, std::string &targetName)
     std::string rq = ":" + server_name + " 401 " + client.get_nickname() + " " + targetName + " :No such nick\r\n";
     if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
         fatal("Error on send");
+}
+
+void Server::send_error_473(Client &client, std::string &channelName)
+{
+    std::string server_name = SERVER_NAME;
+    std::string rq = ":" + server_name + " 473 " + client.get_nickname() + " " + channelName + " :Invite only channel\r\n";
+    client.sendMessage(rq);
+}
+
+void Server::send_error_471(Client &client, std::string &channelName)
+{
+    std::string server_name = SERVER_NAME;
+    std::string rq = ":" + server_name + " 471 " + client.get_nickname() + " " + channelName + " :Cannot join channel (+l)\r\n";
+    client.sendMessage(rq);
 }

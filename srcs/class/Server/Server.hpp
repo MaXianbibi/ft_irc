@@ -125,6 +125,11 @@ public:
     void send_error_403(Client &client, std::string &channelName); // No such channel
     void send_error_442(Client &client, std::string &channelName); // You're not on that channel 
     void send_error_461(Client &client);                           // Not enough parameters
+    
+    
+    void send_error_461(Client &client, std::string commands_name); // Not enough parameters (with command name)
+    void send_error_471(Client &client, std::string &channelName); // Cannot join channel (+l
+    void send_error_473(Client &client, std::string &channelName); // Invite only channel
     void send_error_482(Client &client, std::string &channelName); // You're not channel operator
 
 

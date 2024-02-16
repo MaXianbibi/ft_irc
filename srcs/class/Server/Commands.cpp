@@ -335,17 +335,22 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     /// @param client client info
     void Server::joinCommand(std::vector<commands>::iterator & it, Client & client)
     {
+        if (it->params.size() == 0) { send_error_461(client, "JOIN"); return; }
+
+
         std::string serveur_name = SERVER_NAME;
-        if (it->params.size() == 0)
-        {
-            std::string rq = ":" + serveur_name + " 461 " + client.get_nickname() + " JOIN :Not enough parameters\r\n";
-            if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
-                fatal("Error on send");
-            return;
-        }
         std::string channel = it->params[0];
+
         if (channels.find(channel) != channels.end())
         {
+            if (channels[channel].mode.i)
+                if (channels[channel].inviteList.find(&client) == channels[channel].inviteList.end())
+                    {send_error_473(client, channel); return;}
+
+            if (channels[channel].mode.l)
+                if (channels[channel].clients.size() >= channels[channel].limit)
+                    {send_error_471(client, channel); return;}
+
             channels[channel].clients.push_back(&client);
             std::string topic = channels[channel].topic;
             std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
