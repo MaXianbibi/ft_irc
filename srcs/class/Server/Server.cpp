@@ -307,12 +307,6 @@ void Server::fatal(const char *message)
     exit(1);
 }
 
-// getter
-int Server::get_sockfd() const { return sockfd; }
-int Server::get_port() const { return port; }
-int Server::get_client_fd() const { return client_fd; }
-std::map<int, Client> Server::get_clients() const { return clients; }
-std::map<std::string, Client *> Server::get_clients_by_nick() const { return clients_by_nick; }
 
 /// @brief Retourne une référence à l'objet Client trouvé.
 /// @param nickname 
@@ -342,8 +336,15 @@ Client *Server::get_client_by_nick_ptr(std::string nickname)
     return NULL;
 }
 
-
+// getter
+int Server::get_sockfd() const { return sockfd; }
+int Server::get_port() const { return port; }
+int Server::get_client_fd() const { return client_fd; }
+std::map<int, Client> Server::get_clients() const { return clients; }
+std::map<std::string, Client *> Server::get_clients_by_nick() const { return clients_by_nick; }
+std::string Server::get_keypass() const { return keypass; }
 
 // Setter
 void Server::set_sockfd(int sockfd) { this->sockfd = sockfd; }
 void Server::set_port(int port) { this->port = port; }
+void Server::set_keypass(std::string keypass) { this->keypass = keypass; }

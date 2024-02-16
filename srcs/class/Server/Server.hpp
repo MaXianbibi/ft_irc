@@ -78,6 +78,9 @@ private:
     // channels
     std::map<std::string, s_channel > channels;
 
+
+    std::string keypass;
+
 public:
     Server();
     ~Server();
@@ -147,6 +150,7 @@ public:
     int get_client_fd() const;
     std::map<int, Client> get_clients() const;
     std::map<std::string, Client*> get_clients_by_nick() const;
+    std::string get_keypass() const;
 
     Client& get_client_by_nick(std::string nickname);
     Client *get_client_by_nick_ptr(std::string nickname);
@@ -154,6 +158,7 @@ public:
     // Setter
     void set_sockfd(int sockfd);
     void set_port(int port);
+    void set_keypass(std::string keypass);
 };
 
 
