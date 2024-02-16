@@ -12,8 +12,9 @@ Le projet se concentre sur la création d'un serveur robuste capable de gérer p
     ./ircserv <port> <password>
 
 port : Le numéro du port sur lequel votre serveur acceptera les connexions entrantes. <br>
-password : Le mot de passe permettant de s’identifier auprès de votre serveur <br>
-    IRC, et qui devra être fourni par tout client IRC souhaitant s’y connecter. <br>
+<br>
+password : Le mot de passe permettant de s’identifier auprès de votre serveur IRC, <br>
+et qui devra être fourni par tout client IRC souhaitant s’y connecter. <br>
 
 # faculties : 
 
