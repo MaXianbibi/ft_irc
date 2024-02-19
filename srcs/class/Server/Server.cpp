@@ -218,7 +218,6 @@ void Server::newMessage(int &i)
             {
                 std::cout << "Params : " << *it_param << std::endl;
             }
-
             if (it->command == "NICK")
                 NickCommand(client, it);
             else if (it->command == "USER")

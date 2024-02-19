@@ -18,10 +18,19 @@ std::string generateRandomNumbers()
 /// @param it iterator of the command
 void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
 {
+
     std::string server_name = SERVER_NAME;
     if (it->params.size() == 0)
     {
         send_error_461(client);
+        return;
+    }
+
+    if (client.get_authentified() == false)
+    {
+        client.sendMessage("NOTICE a Please connect with the correct password /connect <SERVER> <PORT> <PASS> \r\n");
+        send_error_451(client);
+        disconnect_client(client);
         return;
     }
     // new client
