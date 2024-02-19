@@ -115,8 +115,8 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     /// @param i client's socket fd
     void Server::FirstTimeConnectionMsg(Client & client, int &i)
     {
-        if (client.get_authentified() == false)
-        { send_error_451(client); disconnect_client(client); return ;}
+        // if (client.get_authentified() == false)
+        // { send_error_451(client); disconnect_client(client); return ;}
         if (client.get_nickname().empty())
             return;
         if (client.get_first_time_connected() == false)
