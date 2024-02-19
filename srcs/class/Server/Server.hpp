@@ -11,6 +11,7 @@
 #define BUF_SIZE 1024
 #define SERVER_NAME "OldKanyesFanClub"
 #define DEFAULT_TOPIC "What do you think of Vulture ?"
+# define DEFAULT_CHANNEL "general"
 
 #define __CREATION_DATE__ "2024-02-06"
 #define __CREATION_TIME__ "12:00:00"

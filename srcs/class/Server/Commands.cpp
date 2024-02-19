@@ -339,11 +339,14 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     /// @param client client info
     void Server::joinCommand(std::vector<commands>::iterator & it, Client & client)
     {
-        if (it->params.size() == 0) { send_error_461(client, "JOIN"); return; }
+        std::string channel; 
         if (client.get_authentified() == false) { send_error_451(client); return; }
-
+        if (it->params.size() == 0) {
+            channel = DEFAULT_CHANNEL;
+        }
+        else 
+            channel = it->params[0];
         std::string serveur_name = SERVER_NAME;
-        std::string channel = it->params[0];
 
         if (channels.find(channel) != channels.end())
         {
