@@ -1,3 +1,14 @@
+/**
+ * @file Client.cpp
+ * @author Justin Morneau
+ * @brief class client
+ * @version 0.1
+ * @date 2024-02-20
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "Client.hpp"
 
 Client::Client()

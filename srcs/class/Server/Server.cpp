@@ -1,3 +1,14 @@
+/**
+ * @file Server.cpp
+ * @author Justin Morneau
+ * @brief Serveur IRC
+ * @version 0.1
+ * @date 2024-02-20
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "Server.hpp"
 
 Server::Server()

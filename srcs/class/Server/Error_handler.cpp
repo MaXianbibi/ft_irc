@@ -1,3 +1,14 @@
+/**
+ * @file Error_handler.cpp
+ * @author Justin Morneau
+ * @brief Error handler
+ * @version 0.1
+ * @date 2024-02-20
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "Server.hpp"
 
 /// @brief send a 403 error to the client : 403 = No such channel

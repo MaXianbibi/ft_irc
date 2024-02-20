@@ -1,3 +1,14 @@
+/**
+ * @file Client.hpp
+ * @author Justin Morneau
+ * @brief Class client
+ * @version 0.1
+ * @date 2024-02-20
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 

@@ -1,3 +1,14 @@
+/**
+ * @file Server.hpp
+ * @author Justin Morneau
+ * @brief  Server class
+ * @version 0.1
+ * @date 2024-02-20
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #ifndef SERVER_HPP
 #define SERVER_HPP
 

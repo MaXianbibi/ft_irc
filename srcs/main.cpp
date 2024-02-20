@@ -1,12 +1,23 @@
+/**
+ * @file main.cpp
+ * @author Justin Morneau
+ * @brief main function
+ * @version 0.1
+ * @date 2024-02-20
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "include.hpp"
 
 int main(int argc, char **argv) {
     Server server;
 
-    #define BUILD 1
+    
 
 
-   #ifdef BUILD 
+   #ifndef DEBUG 
     if (argc != 3) {std::cerr << "Usage: " << argv[0] << " <port> <password>" << std::endl; exit(1);}
 
     int port = atoi(argv[1]);

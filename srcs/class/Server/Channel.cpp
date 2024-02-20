@@ -1,3 +1,14 @@
+/**
+ * @file Channel.cpp
+ * @author Justin Morneau
+ * @brief gere les cannaux / channels du serveur IRC
+ * @version 0.1
+ * @date 2024-02-20
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "Server.hpp"
 
 /// @brief Broadcast to every client in the channel

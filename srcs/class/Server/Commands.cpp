@@ -1,3 +1,14 @@
+/**
+ * @file Commands.cpp
+ * @author Justin Morneau
+ * @brief Gere les commandes d'un serveur IRC
+ * @version 0.1
+ * @date 2024-02-20
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "Server.hpp"
 
 std::string generateRandomNumbers()

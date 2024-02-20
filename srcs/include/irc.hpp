@@ -1,3 +1,14 @@
+/**
+ * @file irc.hpp
+ * @author Justin Morneau
+ * @brief Include all the headers and define the error codes
+ * @version 0.1
+ * @date 2024-02-20
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #ifndef IRC_HPP
 #define IRC_HPP
 
