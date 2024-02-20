@@ -469,8 +469,11 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
                 std::cout << client.get_nickname() << std::endl;
                 if ((*it_client)->get_socket() == client.get_socket())
                     continue;
+                
+                std::string clientOpName = client.isOperator() ? "@" : "";
+                clientOpName += client.get_nickname();
 
-                std::string rq = ":" + client.get_nickname() + "!" + client.get_username() + "@" + client.get_ip() + " PRIVMSG " + target_name + " :" + it->params[1] + "\r\n";
+                std::string rq = ":" + clientOpName + "!" + client.get_username() + "@" + client.get_ip() + " PRIVMSG " + target_name + " :" + it->params[1] + "\r\n";
                 if (send((*it_client)->get_socket(), rq.c_str(), rq.size(), 0) < 0)
                     fatal("Error on send");
             }
