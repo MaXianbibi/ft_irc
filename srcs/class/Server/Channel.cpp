@@ -17,7 +17,10 @@ void s_channel::broadcast(std::string message, Client & client)
     for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); ++it)
     {
         if ((*it) != &client)
+        {
+            std::cout << "DEBUG : " << (*it)->get_nickname() << std::endl;
             (*it)->sendMessage(message);
+        }
     }
     
 }

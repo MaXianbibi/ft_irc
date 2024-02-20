@@ -26,6 +26,8 @@ Support pour définir un pseudonyme (nickname) et un utilisateur (user). <br>
 Capacité à rejoindre des canaux (channels) et à envoyer/recevoir des messages privés. <br>
 Gestion correcte des canaux. <br>
 
+echo -e "PASS 1234\r\nNICK MonPseudo\r\nUSER MonPseudo 0 * :Mon\r\n Join #a" | nc localhost 6667 <br>
+
 
 
 # TODO         

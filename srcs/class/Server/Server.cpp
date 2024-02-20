@@ -27,11 +27,12 @@ int Server::InitSocket()
         fatal("Error opening socket");
 
     // set the socket to non-blocking
-    int flags = fcntl(sockfd, F_GETFL, 0);
+    int flags = fcntl(sockfd, F_SETFL, O_NONBLOCK);
+
     if (flags < 0)
         fatal("Error getting socket flags");
 
-    if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) < 0)
+    if (fcntl(sockfd, F_SETFL, O_NONBLOCK) < 0)
         fatal("Error setting socket to non-blocking");
 
     return SUCCESS;
@@ -140,6 +141,9 @@ int Server::selectInit()
     FD_SET(sockfd, &master);
     fdmax = sockfd;
 
+
+    std::cout << "Server started on port " << port << std::endl;
+    
     return SUCCESS;
 }
 
@@ -275,7 +279,7 @@ void Server::newClient()
     }
     else
     {
-        int flags = fcntl(newsockfd, F_GETFL, 0);
+        int flags = fcntl(newsockfd, F_SETFL, O_NONBLOCK);
         if (flags < 0)
         {
             perror("ERROR on fcntl(F_GETFL)");
@@ -283,7 +287,7 @@ void Server::newClient()
         }
         else
         {
-            if (fcntl(newsockfd, F_SETFL, flags | O_NONBLOCK) < 0)
+            if (fcntl(newsockfd, F_SETFL, O_NONBLOCK) < 0)
             {
                 perror("ERROR on fcntl(F_SETFL)");
                 close(newsockfd);

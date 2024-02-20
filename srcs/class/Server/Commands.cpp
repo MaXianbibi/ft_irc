@@ -90,8 +90,11 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     {
         FD_CLR(i, &master); // Remove from master set
 
+
+        channels.at(clients.at(i).get_join_channel()).kickClient(clients.at(i));
         clients_by_nick.erase(clients.at(i).get_nickname());
         clients.erase(i); // Remove from clients map
+
         close(i);         // Bye!
         std::cout << "Client " << i << " disconnected" << std::endl;
         return;
@@ -348,6 +351,7 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
     /// @param client client info
     void Server::joinCommand(std::vector<commands>::iterator & it, Client & client)
     {
+        std::cout << "DEBUG : HAS JOINED" << std::endl;
         std::string channel; 
         if (client.get_authentified() == false) { send_error_451(client); return; }
         if (it->params.size() == 0) {
@@ -462,21 +466,22 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
             if (channels[target_name].is_client_in_channel(client) == false)
                 {send_error_442(client, target_name); return ;}
 
-            std::vector<Client *> clients = channels[target_name].clients;
-            std::vector<Client *>::iterator it_client = clients.begin();
-            for (; it_client != clients.end(); ++it_client)
-            {
-                std::cout << client.get_nickname() << std::endl;
-                if ((*it_client)->get_socket() == client.get_socket())
-                    continue;
+            // std::vector<Client *> clients = channels[target_name].clients;
+            // std::vector<Client *>::iterator it_client = clients.begin();
+            // for (; it_client != clients.end(); ++it_client)
+            // {
+            //     std::cout << "debug : " << client.get_socket() << client.get_nickname() << std::endl;
+            //     if ((*it_client)->get_socket() == client.get_socket())
+            //         continue;
                 
-                std::string clientOpName = client.isOperator() ? "@" : "";
-                clientOpName += client.get_nickname();
+            //     std::string clientOpName = client.isOperator() ? "@" : "";
+            //     clientOpName += client.get_nickname();
 
-                std::string rq = ":" + clientOpName + "!" + client.get_username() + "@" + client.get_ip() + " PRIVMSG " + target_name + " :" + it->params[1] + "\r\n";
-                if (send((*it_client)->get_socket(), rq.c_str(), rq.size(), 0) < 0)
-                    fatal("Error on send");
-            }
+            //     std::string rq = ":" + clientOpName + "!" + client.get_username() + "@" + client.get_ip() + " PRIVMSG " + target_name + " :" + it->params[1] + "\r\n";
+            //     if (send((*it_client)->get_socket(), rq.c_str(), rq.size(), 0) < 0)
+            //         fatal("Error on send");
+            // }
+            channels[target_name].broadcast(":" + client.get_nickname() + " PRIVMSG " + target_name + " :" + it->params[1] + "\r\n", client);
         }
         else
         {

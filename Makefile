@@ -31,7 +31,7 @@ $(NAME): $(OBJS)
 
 $(OBJ_DIR)%.o: %.cpp
 	@mkdir -p $(dir $@)
-	@echo "$(_BLUE)$(_BOLD)Compiling CPP09 - btc : $<...$(_END)"
+	@echo "$(_BLUE)$(_BOLD)Compiling ft_IRC $<...$(_END)"
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
