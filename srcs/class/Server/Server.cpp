@@ -143,7 +143,7 @@ int Server::selectInit()
 
 
     std::cout << "Server started on port " << port << std::endl;
-    
+
     return SUCCESS;
 }
 
@@ -246,6 +246,8 @@ void Server::newMessage(int &i)
                 TopicCommand(it, client);
             else if (it->command == "INVITE")
                 InviteCommand(it, client);
+            else if (it->command == "PART")
+                channels.at(client.get_join_channel()).kickClient(client);
             else if (it->command == "PASS")
             {
                 PassCommand(it, client);
