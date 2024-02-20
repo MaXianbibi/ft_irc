@@ -16,8 +16,17 @@ Server::Server()
     std::cout << "Server created" << std::endl;
     // set the port to 0, if the user doesn't specify a port, the default port will be used in the bindSocket function
     port = 0;
-
     keypass = "1234";
+
+    logfile.open("logfile.log");
+
+    if (!logfile.is_open())
+        fatal("Error opening logfile");
+
+    coutbuf = std::cout.rdbuf(); 
+    std::cout.rdbuf(logfile.rdbuf()); 
+
+
 
 }
 
@@ -154,6 +163,8 @@ int Server::selectInit()
 
 
     std::cout << "Server started on port " << port << std::endl;
+
+
 
     return SUCCESS;
 }
@@ -325,11 +336,20 @@ void Server::newClient()
     }
 }
 
+void Server::close_log_file()
+{
+    std::cout.rdbuf(coutbuf);
+    logfile.close();
+}
+
 /// @brief exit the program with a message
 /// @param message exit message
 /// @return void
 void Server::fatal(const char *message)
 {
+    close_log_file();
+
+
     perror(message);
     exit(1);
 }

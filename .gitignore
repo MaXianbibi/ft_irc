@@ -32,3 +32,5 @@
 *.app
 
 ircserv
+test_client.log
+logfile.log

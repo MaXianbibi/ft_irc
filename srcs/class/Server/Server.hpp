@@ -95,6 +95,10 @@ private:
 
     std::string keypass;
 
+    std::ofstream logfile;
+    std::streambuf *coutbuf;
+
+
 public:
     Server();
     ~Server();
@@ -114,6 +118,7 @@ public:
     void applyChannelMode(s_channel &channel, Client &client, const std::string &mode, const std::string &param = "");
     void disconnect_client(Client &client);
 
+    void close_log_file();
     // over one client ( u need to use acceptSocket() before
     int loopSocket();
     void newClient();

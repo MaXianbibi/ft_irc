@@ -35,6 +35,6 @@ int main(int argc, char **argv) {
 
     server.selectInit();
     server.selectLoop();
-
+    server.close_log_file();
     return 0;
 }

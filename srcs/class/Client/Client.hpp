@@ -55,6 +55,8 @@ private:
     bool authentified;
     bool has_joinded_channel;
 
+
+
     public:
     Client();
     ~Client();

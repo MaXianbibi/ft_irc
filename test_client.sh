@@ -1,3 +1,8 @@
+# /**
+#  * @file test_client.sh
+#  * @brief Test du client IRC
+#  */
+
 #!/bin/sh
 
 # Fonction pour envoyer une commande avec un délai
@@ -23,4 +28,4 @@ send_command_with_delay "JOIN #a"
 send_command_with_delay "PRIVMSG #a :Hello World"
 send_command_with_delay "QUIT"
 
-} | nc localhost 6667
+} | nc localhost 6667 > test_client.log
