@@ -31,6 +31,8 @@ void s_channel::kickClient(Client &target)
     {
         if ((*it)->get_nickname() == target.get_nickname())
         {
+            target.set_is_joinned_channel(false);
+            target.set_join_channel("");
             clients.erase(it);
             break;
         }
