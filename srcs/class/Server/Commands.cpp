@@ -420,7 +420,7 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
             new_channel.name = channel;
             new_channel.password = "";
             channels[channel] = new_channel;
-            std::string rq = ":" + client.get_nickname() + " JOIN " + channel + "\r\n";
+            std::string rq = ":" + client.get_nickname() + " JOIN :" + channel + "\r\n";
             if (send(client.get_socket(), rq.c_str(), rq.size(), 0) < 0)
                 fatal("Error on send");
 

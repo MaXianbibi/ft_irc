@@ -3,6 +3,7 @@
 int main(int argc, char **argv) {
     Server server;
 
+    #define BUILD 1
 
 
    #ifdef BUILD 
