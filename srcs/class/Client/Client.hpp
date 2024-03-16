@@ -108,6 +108,8 @@ private:
     void set_authentified(bool authentified);
     void set_is_joinned_channel(bool has_joinded_channel);
 
+    std::string half_buffer;
+
 };
 
 #endif

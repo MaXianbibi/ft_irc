@@ -98,6 +98,7 @@ private:
     std::ofstream logfile;
     std::streambuf *coutbuf;
 
+    std::string bufferHalfCommand;
 
 public:
     Server();

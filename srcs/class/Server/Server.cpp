@@ -222,13 +222,28 @@ void Server::newMessage(int &i)
     }
     else
     {
-
         if (n < BUF_SIZE)
             buffer[n] = '\0';
 
         Log(buffer);
 
         Client &client = clients.at(i);
+        if (buffer[n - 1] && buffer[n - 1] == '\n')
+        {
+            if (!client.half_buffer.empty())
+            {
+                client.half_buffer += buffer;
+                memset(buffer, 0, sizeof(buffer));
+
+                strcpy(buffer, std::string(client.half_buffer + buffer).c_str());
+                client.half_buffer.clear();
+            }
+        }
+        else
+        {
+            client.half_buffer += buffer;
+            return ;
+        }
         std::string string_buffer(buffer);
         client.set_command(string_buffer);
         client.parse_command();
@@ -244,7 +259,6 @@ void Server::newMessage(int &i)
             {
                 std::cout << "Params : " << *it_param << std::endl;
             }
-
             try {
                 if (it->command == "NICK")
                     NickCommand(client, it);
