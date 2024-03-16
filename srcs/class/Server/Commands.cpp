@@ -282,7 +282,11 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
             if (modeSet)
             {
                 channel.mode.k = true;
-                channel.password = param;
+                if (!param.empty())
+                    channel.password = param;
+                else
+                    channel.password = "1234";
+
             }
             else
             {
