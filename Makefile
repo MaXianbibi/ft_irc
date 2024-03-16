@@ -14,7 +14,7 @@ NAME = ircserv
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC_FILES = $(shell find $(SRC_DIR) -type f -name "*.cpp")
+SRC_FILES = $(shell find . -type f -name "*.cpp")
 OBJ_DIR = objs/
 
 OBJS = $(patsubst %.cpp, $(OBJ_DIR)%.o, $(SRC_FILES))

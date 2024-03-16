@@ -244,40 +244,48 @@ void Server::newMessage(int &i)
             {
                 std::cout << "Params : " << *it_param << std::endl;
             }
-            if (it->command == "NICK")
-                NickCommand(client, it);
-            else if (it->command == "USER")
-                UserCommand(client, it);
-            else if (it->command == "QUIT")
-                return QuitCommand(i);
-            else if (it->command == "PING")
-                PingCommand(it, i);
-            else if (it->command == "CAP")
-                CapCommand(it, i);
-            else if (it->command == "MODE")
-                ModeCommand(it, client);
-            else if (it->command == "WHOIS")
-                WhoisCommand(it, client, i);
-            else if (it->command == "JOIN")
-                joinCommand(it, client);
-            else if (it->command == "PRIVMSG") 
-                PrivmsgCommand(it, client);
-            else if (it->command == "KICK")
-                KickCommand(it, client);
-            else if (it->command == "TOPIC")
-                TopicCommand(it, client);
-            else if (it->command == "INVITE")
-                InviteCommand(it, client);
-            else if (it->command == "PART")
-                channels.at(client.get_join_channel()).kickClient(client);
-            else if (it->command == "PASS")
-            {
-                PassCommand(it, client);
-                if (client.get_authentified() == false)
-                    return ;
-            }
+
+            try {
+                if (it->command == "NICK")
+                    NickCommand(client, it);
+                else if (it->command == "USER")
+                    UserCommand(client, it);
+                else if (it->command == "QUIT")
+                    return QuitCommand(i);
+                else if (it->command == "PING")
+                    PingCommand(it, i);
+                else if (it->command == "CAP")
+                    CapCommand(it, i);
+                else if (it->command == "MODE")
+                    ModeCommand(it, client);
+                else if (it->command == "WHOIS")
+                    WhoisCommand(it, client, i);
+                else if (it->command == "JOIN")
+                    joinCommand(it, client);
+                else if (it->command == "PRIVMSG") 
+                    PrivmsgCommand(it, client);
+                else if (it->command == "KICK")
+                    KickCommand(it, client);
+                else if (it->command == "TOPIC")
+                    TopicCommand(it, client);
+                else if (it->command == "INVITE")
+                    InviteCommand(it, client);
+                else if (it->command == "PART")
+                    channels.at(client.get_join_channel()).kickClient(client);
+                else if (it->command == "PASS")
+                {
+                    PassCommand(it, client);
+                    if (client.get_authentified() == false)
+                        return ;
+                }
             else
                 client.sendMessage("421 " + client.get_nickname() + " :Unknown command\r\n");
+            }
+            catch(...) {
+                std::cerr << "Command failed" << std::endl;
+            }
+
+
         }
         if (client.get_first_time_connected() == true)
             FirstTimeConnectionMsg(client, i);

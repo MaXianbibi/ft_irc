@@ -58,8 +58,9 @@ void Server::NickCommand(Client &client, std::vector<commands>::iterator &it)
         }
         else
         {
-            clients_by_nick[it->params[0]] = &client;
-            client.set_nickname(it->params[0]);
+                clients_by_nick[it->params[0]] = &client;
+                client.set_nickname(it->params[0]);
+
         }
         // std::cout << "youpi" << std::endl;
         return;
